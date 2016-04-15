@@ -128,6 +128,9 @@ function joinABoard() {
         return;
     }
 
+    //Setup the dataChannel object for the invitee
+    setupDataChannelForInvitee();
+
     send({
         type: "requestToJoinABoard",
         board_id: page2_board_id.value
@@ -187,15 +190,30 @@ function onReceiveRequestToJoinTheBoard(data) {
     var result = confirm(data.sender + " wants to join the board");
 
     //send back the reply to the requester
-    send({
-        type: "answer",
-        success: result,
-        sender: data.sender // the username of the person sending the request to join the board
-    });
+    //send({
+    //    type: "answer",
+    //    success: result,
+    //    sender: data.sender // the username of the person sending the request to join the board
+    //});
 
     if (result) {
         //if accept the request, set the connectedUser to the username of the sender
         connectedUser = data.sender;
+
+        //Creates peer2peer connection offer and sends to the board's owner
+        peerConnection.createOffer(function (offer) {
+            console.log("Owner creates webRTC offer and send to the client " + connectedUser);
+            peerConnection.setLocalDescription(offer);
+            var data_ = {
+                type: "offer",
+                //board_id: page2_board_id.value,
+                offer: offer,
+                client_username: connectedUser
+            };
+            send(data_);
+        }, function (error) {
+            console.log("Failed to create offer", error);
+        });
     }
 }
 
@@ -219,21 +237,19 @@ function onReceiveAnswer(data) {
     console.log("request to join the board accepted");
     connectedUser = boardOwner;
 
-    //Setup the dataChannel object for the invitee
-    setupDataChannelForInvitee();
-    //Creates peer2peer connection offer and sends to the board's owner
-    peerConnection.createOffer(function (offer) {
-        console.log("Create webRTC offer");
-        peerConnection.setLocalDescription(offer);
-        var data = {
-            type: "offer",
-            board_id: page2_board_id.value,
-            offer: offer
-        };
-        send(data);
-    }, function (error) {
-        console.log("Failed to create offer to join the board: ", error);
-    });
+    ////Creates peer2peer connection offer and sends to the board's owner
+    //peerConnection.createOffer(function (offer) {
+    //    console.log("Create webRTC offer");
+    //    peerConnection.setLocalDescription(offer);
+    //    var data = {
+    //        type: "offer",
+    //        board_id: page2_board_id.value,
+    //        offer: offer
+    //    };
+    //    send(data);
+    //}, function (error) {
+    //    console.log("Failed to create offer to join the board: ", error);
+    //});
 }
 
 /**
@@ -287,30 +303,33 @@ function setupDataChannel() {
 }
 
 /**
- * Receives WebRTC answer from the board's owner
+ * Receives WebRTC answer from the client
  */
 function onWebRTCAnswer(data) {
-    console.log("WebRTC Answer: ", data);
+    console.log("Receives WebRTC Answer from the client: ", data);
     peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
 }
 
 /**
- * The owner's browser receives WebRTC offer from another browser
+ * The client's browser receives WebRTC offer from the owner
  */
 function onOfferReceived(data) {
-    console.log("Receive WebRTC offer from " + data.sender);
+    console.log("Receive WebRTC offer from the board owner: " + data.board_owner);
+
+    connectedUser = data.board_owner;
 
     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
         //addJoiner(data.sender); //add the username of the sender
 
+    //creates answer and reply to the board's owner
     peerConnection.createAnswer(function (answer) {
-        console.log("WebRTC Answer the offer");
+        console.log("WebRTC Answer the offer of the board's owner " + data.board_owner);
         peerConnection.setLocalDescription(answer);
         send({
             type: "webRTCAnswer",
-            success: true,
+            //success: true,
             answer: answer,
-            sender: data.sender // the username of the person sending the request to join the board
+            board_owner: data.board_owner
         });
     }, function (error) {
         console.log("error in reply to the sender who sent the request to join the board");

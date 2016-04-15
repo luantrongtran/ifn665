@@ -40,10 +40,11 @@ wss.on('connection', function (connection) {
 
             //Handlers for setting up WebRTC
             case "offer":
-                //sends offer to the board's owner
+                //After accept the request to join the board, the owner sends WebRTC offer to the client
                 onOffer(connection, data);
                 break;
             case "webRTCAnswer":
+                //The client send the WebRTC answer to the board's owner
                 onWebRTCAnswer(connection, data);
                 break;
             case "candidate":
@@ -66,40 +67,37 @@ function onCandidate(con, data) {
 }
 
 /**
- * The board's owner sends the webRTC answer to the requester
+ * The client sends the webRTC answer to the board's owner
  * @param con
  * @param data
  */
 function onWebRTCAnswer(con, data) {
-    var targetConnection = users[data.sender];
+    var targetConnection = users[data.board_owner];
 
     sendTo(targetConnection, {
         type: "webRTCAnswer",
         answer: data.answer,
-        board_owner: con.name
+        client: con.name
     });
 
     console.log(con.name + " sends webrtc answer to " + data.sender);
 }
 
 /**
- * Sends offer to the board's owner
+ * Board's owner sends WebRTC offer to the client
  * @param con
  * @param data
  */
 function onOffer(con, data) {
-    var boardId = data.board_id;
-    var username = getBoardOwner(boardId);
-
-    console.log(con.name + " sends webrtc offer to " + username);
+    console.log(con.name + " (board's owner) sends webrtc offer to " + data.client_username + " (client)");
 
 
-    var targetConnection = users[username];//the connection to the board's owner
+    var targetConnection = users[data.client_username];//the connection to the board's owner
 
     sendTo(targetConnection, {
         type: "offer",
         offer: data.offer,
-        sender: con.name
+        board_owner: con.name
     });
 }
 
@@ -128,7 +126,7 @@ function onAnswerReceived (connection, data) {
 }
 
 /**
- * invoked when receives a request to join a created board
+ * Client sends request to join a board
  * @param data contains
  *          type: "requestToJoinABoard"
  *          offer: the info, used for setting up peer-to-peer, of the sender
