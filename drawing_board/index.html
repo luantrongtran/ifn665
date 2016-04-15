@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>IFN665 - Advanced Topic 1</title>
+
+    <style>
+        #page1 {
+            display: block;
+        }
+
+        #page2, #page3 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!--Page #1-->
+    <div id="page1">
+        <input id="page1_username" type="text" placeholder="enter your name">
+        <button id="page1_btnNext">Next</button>
+    </div>
+
+    <div id="page2">
+        <input id="page2_board_id" type="text" placeholder="Enter board id">
+        <br>
+        <button id="page2_btnCreate">Create canvas</button>
+        <button id="page2_btnJoin">Join</button>
+    </div>
+
+    <div id="page3">
+        <button id="page2_test">Test Data channel</button>
+        <canvas></canvas>
+    </div>
+
+    <script src="js/initialising.js" type="text/javascript"></script>
+    <script src="js/webrtc.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
+</body>
+</html>
