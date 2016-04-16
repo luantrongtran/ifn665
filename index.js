@@ -44,7 +44,7 @@ wss.on('connection', function (connection) {
                 onOffer(connection, data);
                 break;
             case "webRTCAnswer":
-                //The client send the WebRTC answer to the board's owner
+                //The client sendToWebSocketServer the WebRTC answer to the board's owner
                 onWebRTCAnswer(connection, data);
                 break;
             case "candidate":
@@ -116,7 +116,7 @@ function onAnswerReceived (connection, data) {
         return;
     }
 
-    //var send = data.sender;
+    //var sendToWebSocketServer = data.sender;
     sendTo(senderCon, {
        type: "answer",
         board_owner: connection.name,

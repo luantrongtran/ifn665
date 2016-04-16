@@ -9,8 +9,16 @@
             display: block;
         }
 
-        #page2, #page3 {
+        #page2 {
             display: none;
+        }
+
+        #page3 {
+            display: block;
+        }
+
+        #canvas {
+            border: 1px solid black;
         }
     </style>
 </head>
@@ -31,11 +39,27 @@
 
     <div id="page3">
         <button id="page2_test">Test Data channel</button>
-        <canvas></canvas>
+        <canvas id="canvas"></canvas>
+
+        <div id="debug">
+            selected tool: <b id="selectedTool"></b>
+            <br>
+            is drawing: <b id="isDrawing"></b>
+            <br>
+            drawing obj info: <b id="drawingObjInfo"></b>
+            <br>
+            custom info: <b id="customInfo"></b>
+        </div>
     </div>
 
     <script src="js/initialising.js" type="text/javascript"></script>
     <script src="js/webrtc.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
+    <script src="js/fabric.min.js" type="text/javascript"></script>
+    <script src="js/drawing.js" type="text/javascript"></script>
+
+    <script>
+        initCanvas();
+    </script>
 </body>
 </html>

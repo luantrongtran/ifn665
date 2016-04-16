@@ -3,6 +3,8 @@
  */
 var connection = new WebSocket("ws://localhost:8888");
 var peerConnection, dataChannel;
+
+var currentUsername;// The username of the user
 var connectedUser; //The username of the partner
 /*
 This variable contains all the usernames of people who joined the board. This variable contains nothing if
@@ -43,8 +45,8 @@ page2_btnJoin.addEventListener("click", function() {
 var page2_test = document.querySelector("#page2_test");
 page2_test.addEventListener("click", function() {
     dataChannel.send("abc");
-    alert(dataChannel.readyState);
-    alert(peerConnection.iceConnectionState);
+    //alert(dataChannel.readyState);
+    //alert(peerConnection.iceConnectionState);
 });
 
 /** End page 2 **/
@@ -65,7 +67,7 @@ function login() {
         username: page1_username.value
     };
     console.log("sending login request", data);
-    send(data);
+    sendToWebSocketServer(data);
 }
 
 /**
@@ -77,6 +79,7 @@ function onLogin(data) {
         console.log("logged successfully");
         preparePeerConnection();
 
+        currentUsername = page1_username.value;
         goToPage2();
     } else {
         alert("the username is already being used");
@@ -99,7 +102,7 @@ function createNewBoard() {
 
     console.log("Create new board: ", data);
 
-    send(data);
+    sendToWebSocketServer(data);
 }
 
 /**
@@ -131,7 +134,7 @@ function joinABoard() {
     //Setup the dataChannel object for the invitee
     setupDataChannelForInvitee();
 
-    send({
+    sendToWebSocketServer({
         type: "requestToJoinABoard",
         board_id: page2_board_id.value
     });
@@ -147,7 +150,7 @@ function onRequestToJoinABoard(data) {
         //request is successfully sent to the board's owner
         alert("Please wait for the owner's response");
     } else {
-        //failed to send the request
+        //failed to sendToWebSocketServer the request
         alert(data.message);
     }
 }
@@ -169,7 +172,7 @@ function preparePeerConnection() {
         peerConnection.onicecandidate = function (event) {
             console.log("trading candidate");
             if (event.candidate) {
-                send({
+                sendToWebSocketServer({
                     type: "candidate",
                     candidate: event.candidate,
                     connected_user: connectedUser
@@ -189,8 +192,8 @@ function preparePeerConnection() {
 function onReceiveRequestToJoinTheBoard(data) {
     var result = confirm(data.sender + " wants to join the board");
 
-    //send back the reply to the requester
-    //send({
+    //sendToWebSocketServer back the reply to the requester
+    //sendToWebSocketServer({
     //    type: "answer",
     //    success: result,
     //    sender: data.sender // the username of the person sending the request to join the board
@@ -210,7 +213,7 @@ function onReceiveRequestToJoinTheBoard(data) {
                 offer: offer,
                 client_username: connectedUser
             };
-            send(data_);
+            sendToWebSocketServer(data_);
         }, function (error) {
             console.log("Failed to create offer", error);
         });
@@ -236,20 +239,6 @@ function onReceiveAnswer(data) {
     //if the owner accepted the request
     console.log("request to join the board accepted");
     connectedUser = boardOwner;
-
-    ////Creates peer2peer connection offer and sends to the board's owner
-    //peerConnection.createOffer(function (offer) {
-    //    console.log("Create webRTC offer");
-    //    peerConnection.setLocalDescription(offer);
-    //    var data = {
-    //        type: "offer",
-    //        board_id: page2_board_id.value,
-    //        offer: offer
-    //    };
-    //    send(data);
-    //}, function (error) {
-    //    console.log("Failed to create offer to join the board: ", error);
-    //});
 }
 
 /**
@@ -285,6 +274,9 @@ function setupDataChannelForInvitee() {
 
 }
 
+/**
+ * prepare data channel
+ */
 function setupDataChannel() {
     dataChannel.onopen = function () {
         console.log("Data channel opened");
@@ -325,7 +317,7 @@ function onOfferReceived(data) {
     peerConnection.createAnswer(function (answer) {
         console.log("WebRTC Answer the offer of the board's owner " + data.board_owner);
         peerConnection.setLocalDescription(answer);
-        send({
+        sendToWebSocketServer({
             type: "webRTCAnswer",
             //success: true,
             answer: answer,
@@ -343,10 +335,10 @@ function onCandidate(data) {
 }
 
 /**
- *
+ * Send data to websocket server for setting up the peer connection
  * @param message
  */
-function send(message){
+function sendToWebSocketServer(message){
     connection.send(JSON.stringify(message));
 }
 
