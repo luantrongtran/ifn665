@@ -60,7 +60,8 @@ function onCandidate(con, data) {
     var targetConnection = users[data.connected_user];
     sendTo(targetConnection, {
         type: "candidate",
-        candidate: data.candidate
+        candidate: data.candidate,
+        sender: con.name //the username of one sending the info of candidate
     });
 
     console.log(con.name + " sends webrtc candidate to " + data.connected_user);
@@ -77,7 +78,7 @@ function onWebRTCAnswer(con, data) {
     sendTo(targetConnection, {
         type: "webRTCAnswer",
         answer: data.answer,
-        client: con.name
+        clientUsername: con.name
     });
 
     console.log(con.name + " sends webrtc answer to " + data.sender);
@@ -151,7 +152,7 @@ function handleRequestToJoinABoard(con, data) {
         sendTo(targetConnection, {
             type: "receiveRequestToJoinTheBoard",
             //offer: data.offer,
-            sender: con.name
+            client_username: con.name
         });
 
         //reply to the sender, that the offer has been successfully sent to the board owner

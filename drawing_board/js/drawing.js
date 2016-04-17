@@ -9,7 +9,7 @@ var dbIsDrawing = document.querySelector("#isDrawing");
 var dbDrawingObjInfo = document.querySelector("#drawingObjInfo");
 var dbCustomInfo = document.querySelector("#customInfo");
 
-var isDebugged = true;
+var isDebugged = false;
 
 //variables used for transferring data between 2 canvases
 
@@ -57,7 +57,9 @@ function initCanvas() {
     }
 
     console.log("initializing canvas");
-    canvas = new fabric.Canvas("canvas",{selection: false});
+
+    var canvasElement = document.querySelector("#canvas");
+    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 1000});
 
     canvas.on("mouse:down", function(o) {
         isMouseDown = true;
