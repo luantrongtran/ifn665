@@ -70,7 +70,7 @@ function initCanvas() {
     console.log("initializing canvas");
 
     //var canvasElement = document.querySelector("#canvas");
-    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 1000});
+    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 500});
 
     //canvas.isDrawingMode = true;
 
@@ -89,7 +89,7 @@ function onMouseUpCanvas(o) {
     isMouseDown = false;
 
     if(isBoardOwner) {
-
+        onMouseUpExtraEventForOwner();
     } else {
         onMouseUpExtraEventForGuest();
     }
@@ -122,8 +122,7 @@ function onMouseMoveCanvas(o) {
         });
 
         if(isBoardOwner) {
-            //Sending the drawing object to other peers
-
+            onMouseMoveExtraEventForOwner();
         } else {
             onMouseMoveExtraEventForGuest();
         }

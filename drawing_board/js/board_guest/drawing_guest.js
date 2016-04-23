@@ -16,7 +16,7 @@ function sendCanvasDataToServer(data) {
 function sendDrawingObjectToServer(drawingObject) {
     var canvasData = {
         command: DrawingCommands.DRAWING,
-        drawingObject: drawingObject
+        canvasData: drawingObject
     };
     sendCanvasDataToServer(canvasData);
 }

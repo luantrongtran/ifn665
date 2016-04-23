@@ -119,6 +119,7 @@ function preparePeerConnectionForANewClient(clientUsername) {
 
         //create a new data channel for the new user
         var newDataChannel = newPeerConnection.createDataChannel("data_channel_" + clientUsername, WebRTCDataChannelConfiguration);
+        newDataChannel.name = clientUsername;
 
         newDataChannel.onopen = function () {
             console.log("Data channel opened with " + clientUsername);
@@ -163,7 +164,7 @@ function onMessageReceivedFromAClientCallback(event) {
         var canvasData = data.content;
         if (canvasData.command == DrawingCommands.DRAWING) {
             //if the command is drawing
-            var canvasObj = canvasData.drawingObject;
+            var canvasObj = canvasData.canvasData;
 
             if(arrDrawingObject[data.sender]) {
                 //if the drawing object of the sender has been added into arrDrawingObject
@@ -181,6 +182,8 @@ function onMessageReceivedFromAClientCallback(event) {
             console.log("Finish drawing : " , data.sender);
             delete arrDrawingObject[data.sender];
         }
+
+        forwardCanvasData(canvasData, data.sender);
     }
 }
 
@@ -201,27 +204,6 @@ function broadcastChatMessage(message, exceptionUsername) {
     }
 
     console.log("Broadcast chat message to all users: " + broadcastList);
-}
-
-/**
- * Broadcast the data of an canvas's object to all users.
- * @param data an object {}
- * @param exceptionUsername the username of the user that won't receive the message
- */
-function broadcastCanvasData(data, exceptionUsername) {
-    if(exceptionUsername){
-        // if there is an exception user
-        for(var i = 0; i < usernameList.length; i++) {
-            if(usernameList[i] == exceptionUsername){
-                continue;
-            }
-            sendCanvasDataToAClient(usernameList[i], message);
-        }
-    } else {
-        for(var i = 0; i < usernameList.length; i++) {
-            sendCanvasDataToAClient(usernameList[i], data);
-        }
-    }
 }
 
 /**
@@ -271,15 +253,6 @@ function sendChatMessageToAClient(clientUsername, message, addToScreenChat) {
 function forwardChatMessageToACLient(clientUsername, message) {
     console.log("Forwards chat msg to ", clientUsername);
     sendDataToAClient(clientUsername, wrapData(message, DataTransferType.CHAT_MESSAGE));
-}
-
-/**
- * Sends a canvas object such as rectangle, circles, ...
- * @param clientUsername
- * @param data
- */
-function sendCanvasDataToAClient(clientUsername, data) {
-    sendDataToAClient(clientUsername, wrapData(data, DataTransferType.CANVAS_DATA));
 }
 
 /**

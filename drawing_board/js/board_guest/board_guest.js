@@ -121,9 +121,33 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
     console.log("data channel message from board's owner: ", event.data);
 
     var data = JSON.parse(event.data);
-    if (data.type = DataTransferType.CHAT_MESSAGE) {
+    if (data.type == DataTransferType.CHAT_MESSAGE) {
         //if the data is a chat message
         addMessageToChatScreen(data.content);//add the msg into the chat screen
+    } else if (data.type == DataTransferType.CANVAS_DATA) {
+        var canvasData = data.content;
+        if (canvasData.command == DrawingCommands.DRAWING) {
+            //if the command is drawing
+            var canvasObj = canvasData.canvasData;
+
+            console.log("", canvasObj);
+
+            if(arrDrawingObject[data.sender]) {
+                //if the drawing object of the sender has been added into arrDrawingObject
+                updateDrawingObjectOfAPeer(data.sender, canvasObj);
+            } else {
+                // if the drawing object of the sender is not added into the arrDrawingObject
+                //add the drawing object into arrDrawingObject
+                arrDrawingObject[data.sender] = new fabric.Rect(canvasObj);
+
+                //add the drawing object into the canvas
+                canvas.add(arrDrawingObject[data.sender]);
+            }
+            //console.log("drawing object from a guest: ", canvasObj);
+        } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
+            //console.log("Finish drawing : " , data.sender);
+            delete arrDrawingObject[data.sender];
+        }
     }
 }
 
