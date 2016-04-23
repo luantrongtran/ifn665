@@ -12,17 +12,6 @@
  */
 var connection = new WebSocket("ws://localhost:8888");
 
-/**
- * These variables are used for the board's owner. these 2 lists are synchronized, for example, the first
- * WebRTCDataChannel in dataChannelList is created by the first WebRTCPeerConnection in peerConnectionList.
-*/
-var peerConnectionList = {};// stores the WebRTCPeerConnection instances between the board's owner and other guests/clients
-var dataChannelList = {}; //stores the WebRTCDataChannel
-var usernameList = []; // stores all the usernames of guests
-
-//These variables are used for clients who want to join the board of another user.
-var peerConnection, dataChannel;
-
 var currentUsername;// The username of the user
 
 //The username of the board's owner. if the current user is the board owner this value of the variable will be empty

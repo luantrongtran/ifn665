@@ -58,8 +58,8 @@ function sendToWebSocketServer(message){
 }
 
 /**
- * Wrawp the data sent to other peers. Since the data can be a simple text message or can be a complex data of a canvas's
- * object
+ * Wrap the data sent to other peers. Since the data can be a simple text message or can be a complex data of a canvas's
+ * object. Also, add the username of the sender
  * @param data
  * @param dataType
  * @return {{type: *, content: *, sender: (currentUsername|*)}}

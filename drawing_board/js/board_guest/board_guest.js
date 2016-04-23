@@ -2,6 +2,9 @@
  * Created by lua on 16/04/2016.
  */
 
+//These variables are used for clients who want to join the board of another user.
+var peerConnection, dataChannel;
+
 /**
  * Sends the request to join a created board
  */
@@ -148,10 +151,3 @@ function sendChatMessageToServer(message, addToScreenChat) {
     sendDataToAPeer(dataChannel, wrapData(message, DataTransferType.CHAT_MESSAGE));
 }
 
-/**
- * Send the data of a canva's object to server
- * @param data
- */
-function sendCanvasDataToServer(data) {
-    sendDataToAPeer(dataChannel, wrapData(data, DataTransferType.CANVAS_DATA));
-}

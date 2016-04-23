@@ -1,6 +1,13 @@
 /**
  * Created by lua on 16/04/2016.
  */
+/**
+ * These variables are used for the board's owner. these 2 lists are synchronized, for example, the first
+ * WebRTCDataChannel in dataChannelList is created by the first WebRTCPeerConnection in peerConnectionList.
+ */
+var peerConnectionList = {};// stores the WebRTCPeerConnection instances between the board's owner and other guests/clients
+var dataChannelList = {}; //stores the WebRTCDataChannel
+var usernameList = []; // stores all the usernames of guests
 
 /**
  * Sends request to create a new board
@@ -135,21 +142,47 @@ function preparePeerConnectionForANewClient(clientUsername) {
     return newPeerConnection;
 }
 
+/**
+ * When receives a message through peer-to-peer data channel.
+ * @param event
+ */
 function onMessageReceivedFromAClientCallback(event) {
     console.log("data channel receives msg: ", event.data);
     var data = JSON.parse(event.data);
     console.log("Data channel receives message from: ", data.sender);
 
-    if (data.type = DataTransferType.CHAT_MESSAGE) {
+    if (data.type == DataTransferType.CHAT_MESSAGE) {
         //if the data is a chat message
-        addMessageToChatScreen(data.content);//add the msg into the chat screen
+
+        //add the msg into the chat screen
+        addMessageToChatScreen(data.content);
 
         //broadcast the chat message to other users
         broadcastChatMessage(data.content, data.sender);
+    } else if (data.type == DataTransferType.CANVAS_DATA) {
+        var canvasData = data.content;
+        if (canvasData.command == DrawingCommands.DRAWING) {
+            //if the command is drawing
+            var canvasObj = canvasData.drawingObject;
+
+            if(arrDrawingObject[data.sender]) {
+                //if the drawing object of the sender has been added into arrDrawingObject
+                updateDrawingObjectOfAPeer(data.sender, canvasObj);
+            } else {
+                // if the drawing object of the sender is not added into the arrDrawingObject
+                //add the drawing object into arrDrawingObject
+                arrDrawingObject[data.sender] = new fabric.Rect(canvasObj);
+
+                //add the drawing object into the canvas
+                canvas.add(arrDrawingObject[data.sender]);
+            }
+            //console.log("drawing object from a guest: ", canvasObj);
+        } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
+            console.log("Finish drawing : " , data.sender);
+            delete arrDrawingObject[data.sender];
+        }
     }
 }
-
-
 
 /**
  * broadcast a chat message to all users in the board.
@@ -192,7 +225,7 @@ function broadcastCanvasData(data, exceptionUsername) {
 }
 
 /**
- * Sends a simple text to the receiver. The difference with the forwardChatMessageToAClient is that this method
+ * Sends a simple text to the receivers. The difference with the forwardChatMessageToAClient is that this method
  * send the chat message to all users. The chat message includes the name of the board's owner
  * @param clientUsername
  * @param message a string
@@ -213,6 +246,12 @@ function sendChatMessageToClients(message, addToScreenChat) {
     broadcastChatMessage(message); //Sends the message to all other peers.
 }
 
+/**
+ * Sends a text message to another user
+ * @param clientUsername the username of the user to who the message will be delivered
+ * @param message
+ * @param addToScreenChat
+ */
 function sendChatMessageToAClient(clientUsername, message, addToScreenChat) {
     addToScreenChat = (typeof addToScreenChat !== 'undefined') ? addToScreenChat : true;
     console.log("Sends text msg to " + clientUsername);

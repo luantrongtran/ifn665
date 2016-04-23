@@ -13,7 +13,6 @@ var isDebugged = false;
 
 //variables used for transferring data between 2 canvases
 
-
 var TOOL = {
     NONE: "none",
     CIRCLE: "circle",
@@ -40,15 +39,27 @@ var selectedColor = "#ff0000";
 var drawingObject;
 
 /**
+ * stores all the drawing objects of other peers. Drawing object are shapes being drawn by other peers.
+ * Each user has an unique drawing object. This is a key, value pair array. For example, arrDrawingObject['username']
+ * is the drawing object of a user whose username is 'username'
+ * @type {{}}
+ */
+var arrDrawingObject = {};
+
+/**
  * checking if mouse button is being pressed
  */
 var isMouseDown;
+
 /**
  * store the position whenever the mouse is clicked
- * @type {{}}
+ * @type {}
  */
 var mouseDownPosition = {};
 
+/**
+ * Initialising the canvas. Also, adding necessary events for the canvas
+ */
 function initCanvas() {
     if(isDebugged) {
         debug.style.display = "block";
@@ -58,80 +69,128 @@ function initCanvas() {
 
     console.log("initializing canvas");
 
-    var canvasElement = document.querySelector("#canvas");
+    //var canvasElement = document.querySelector("#canvas");
     canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 1000});
 
-    canvas.on("mouse:down", function(o) {
-        isMouseDown = true;
+    //canvas.isDrawingMode = true;
 
+    canvas.on("mouse:down", onMouseDownCanvas);
+
+    canvas.on("mouse:up", onMouseUpCanvas);
+
+    canvas.on("mouse:move", onMouseMoveCanvas);
+}
+
+/**
+ * Mouse up event of canvas
+ * @param o
+ */
+function onMouseUpCanvas(o) {
+    isMouseDown = false;
+
+    if(isBoardOwner) {
+
+    } else {
+        onMouseUpExtraEventForGuest();
+    }
+
+    if(debug) {
+        dbIsDrawing.innerHTML = false + "";
+    }
+}
+
+/**
+ * Mouse move event of canvas
+ * @param o
+ */
+function onMouseMoveCanvas(o) {
+
+    if (isMouseDown && selectedTool != TOOL.NONE) {
         var pointer = canvas.getPointer(o.e);
-        mouseDownPosition.x = pointer.x;
-        mouseDownPosition.y = pointer.y;
 
-        if (selectedTool == TOOL.NONE) {
-            return;
-        } else if (selectedTool = TOOL.RECTANGLE) {
-            drawingObject = new fabric.Rect({
-                originX: "left",
-                originY: "top",
-                left: mouseDownPosition.x,
-                top: mouseDownPosition.y,
-                fill: selectedColor,
-                width: 0,
-                height: 0
-            });
+
+        if(mouseDownPosition.x > pointer.x) {
+            drawingObject.set({left: pointer.x});
+        }
+        if(mouseDownPosition.y > pointer.y) {
+            drawingObject.set({top: pointer.y});
         }
 
-        addObjectIntoCanvas(drawingObject);
+        drawingObject.set({
+            width: Math.abs(mouseDownPosition.x - pointer.x),
+            height: Math.abs(mouseDownPosition.y - pointer.y)
+        });
 
-        if (debug) {
-            dbSelectedTool.innerHTML = selectedTool + "";
+        if(isBoardOwner) {
+            //Sending the drawing object to other peers
+
+        } else {
+            onMouseMoveExtraEventForGuest();
         }
+    }
+
+    canvas.renderAll();
+
+    if(debug == true) {
+        dbDrawingObjInfo.innerHTML = JSON.stringify(drawingObject);
+
+        if(isMouseDown) {
+            dbIsDrawing.innerHTML = "true";
+        }
+
+       dbCustomInfo.innerHTML = drawingObject.id;
+    }
+}
+
+/**
+ * When the canvas is clicked
+ * @param o
+ */
+function onMouseDownCanvas(o) {
+    isMouseDown = true;
+
+    var pointer = canvas.getPointer(o.e);
+    mouseDownPosition.x = pointer.x;
+    mouseDownPosition.y = pointer.y;
+
+    if (selectedTool == TOOL.NONE) {
+        return;
+    } else if (selectedTool = TOOL.RECTANGLE) {
+        drawingObject = new fabric.Rect({
+            originX: "left",
+            originY: "top",
+            left: mouseDownPosition.x,
+            top: mouseDownPosition.y,
+            fill: selectedColor,
+            width: 0,
+            height: 0
+        });
+    }
+
+    addObjectIntoCanvas(drawingObject);
+
+    if (debug) {
+        dbSelectedTool.innerHTML = selectedTool + "";
+    }
+}
+
+function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
+    if(newDrawingObject.type == "rect") {
+        updateDrawingRectangleOfAPeer(peerUsername, newDrawingObject);
+    }
+}
+
+function updateDrawingRectangleOfAPeer(peerUsername, newRectangleObject) {
+    var targetDrawingObj = arrDrawingObject[peerUsername];
+
+    targetDrawingObj.set({
+        left: newRectangleObject.left,
+        top: newRectangleObject.top,
+        width: newRectangleObject.width,
+        height: newRectangleObject.height
     });
 
-    canvas.on("mouse:up", function(o) {
-        isMouseDown = false;
-
-        if(debug) {
-            dbIsDrawing.innerHTML = false + "";
-        }
-    });
-
-    canvas.on("mouse:move", function(o) {
-        if (isMouseDown && selectedTool != TOOL.NONE) {
-            var pointer = canvas.getPointer(o.e);
-
-
-            if(mouseDownPosition.x > pointer.x) {
-                drawingObject.set({left: pointer.x});
-            }
-            if(mouseDownPosition.y > pointer.y) {
-                drawingObject.set({top: pointer.y});
-            }
-
-
-            drawingObject.set({
-                width: Math.abs(mouseDownPosition.x - pointer.x),
-                height: Math.abs(mouseDownPosition.y - pointer.y)
-            });
-        }
-
-        canvas.renderAll();
-
-        if(debug){
-            dbDrawingObjInfo.innerHTML = JSON.stringify(drawingObject);
-
-            if(isMouseDown) {
-                dbIsDrawing.innerHTML = "true";
-            }
-
-            //var pointer = canvas.getPointer(o.e);
-            //dbCustomInfo.innerHTML = "pointer (" + pointer.x + ", " + pointer.y + ")";
-
-            var objs = canvas.getObjects();
-            dbCustomInfo.innerHTML = drawingObject.id;
-        }
-    });
+    canvas.renderAll();
 }
 
 /**

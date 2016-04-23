@@ -16,6 +16,12 @@ var DataTransferType = {
     CANVAS_DATA: "canvas_data"
 };
 
+var DrawingCommands = {
+    DRAWING: "drawing",
+    FINISH_DRAWING: "finish_drawing",
+    DELETE: "delete_object"
+};
+
 /**
  * Checking if users' browser support RTCPeerConnection
  * @returns {*}
@@ -41,5 +47,6 @@ function hasUserMedia() {
  * @param data the data needs to be sent. for ex: {type: '', content: ''}
  */
 function sendDataToAPeer(datachannel, data) {
+    console.log("send data to a peer ", data);
     datachannel.send(JSON.stringify(data));
 }
