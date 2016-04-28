@@ -17,7 +17,8 @@ var TOOL = {
     NONE: "none",
     ELLIPSE: "ellipse",
     RECTANGLE: "rect",
-    LINE: "line"
+    LINE: "line",
+    TEXT: "text"
 };
 
 /**
@@ -206,8 +207,9 @@ function onMouseDownCanvas(o) {
             originX: "left",
             originY: "top",
             stroke: selectedColor,
-            strokeWidth: selectedStrokeWidth,
+            strokeWidth: selectedStrokeWidth
         });
+    } else if (selectedTool == TOOL.TEXT) {
 
     }
 
@@ -238,7 +240,8 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             updateDrawingLineOfAPeer(oldDrawingObject, newDrawingObject);
         }
 
-        canvas.renderAll();
+        //canvas.renderAll();
+        renderCanvas();
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
         //add the drawing object into arrDrawingObject
@@ -296,6 +299,27 @@ function updateDrawingLineOfAPeer(oldLineObj, newLineObj) {
         x2: (newLineObj.x1 < 0) ? newLineObj.left + newLineObj.width : newLineObj.left ,
         y2: (newLineObj.y1 < 0) ? newLineObj.top + newLineObj.height : newLineObj.top
     });
+}
+
+/**
+ * This variable is used to avoid calling the canvas.renderAll() continuously
+ * @type {boolean}
+ */
+var isRenderReady = false;
+/**
+ * This functions is used to avoid calling render immediately after a drawing command which may make the canvas
+ * cannot render 2 objects which are being drawn at the same time by 2 users.
+ */
+function renderCanvas() {
+    if(isRenderReady == false) {
+        isRenderReady = true;
+
+        setTimeout(function(){
+            isRenderReady = false;
+
+            canvas.renderAll();
+        }, 10);
+    }
 }
 
 /**

@@ -40,13 +40,6 @@ function broadcastCanvasData(data, exceptionUsername) {
     }
 }
 
-/**
- * Board's owner forward canvas data of another peer, to other peers
- */
-function forwardCanvasData(canvasData, exceptionUsername) {
-    broadcastCanvasData(canvasData, exceptionUsername);
-}
-
 function finishDrawing_Owner() {
     var canvasData = {
         command: DrawingCommands.FINISH_DRAWING

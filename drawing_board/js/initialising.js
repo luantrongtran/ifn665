@@ -10,7 +10,7 @@
 /**
  * Created by lua on 4/04/2016.
  */
-var connection = new WebSocket("ws://localhost:8888");
+var connection = new WebSocket("ws://192.168.2.6:8888");
 
 var currentUsername;// The username of the user
 
@@ -121,7 +121,7 @@ function setupPage3ForGuest() {
             return;
         }
 
-        sendChatMessageToServer(msg, false);
+        sendChatMessageToServer(msg, true);
     });
 }
 

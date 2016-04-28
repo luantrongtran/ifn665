@@ -168,7 +168,8 @@ function onMessageReceivedFromAClientCallback(event) {
         addMessageToChatScreen(data.content);
 
         //broadcast the chat message to other users
-        broadcastChatMessage(data.content, data.sender);
+        //broadcastChatMessage(data.content, data.sender);
+        forwardDataToAllUsers(data);
     } else if (data.type == DataTransferType.CANVAS_DATA) {
         var canvasData = data.content;
         if (canvasData.command == DrawingCommands.DRAWING) {
@@ -180,33 +181,14 @@ function onMessageReceivedFromAClientCallback(event) {
             delete arrDrawingObject[data.sender];
         }
 
-        forwardCanvasData(canvasData, data.sender);
+        //forwardCanvasData(canvasData, data.sender);
+        forwardDataToAllUsers(data);
     }
-}
-
-/**
- * broadcast a chat message to all users in the board.
- * @param message a string
- * @param exceptionUsername the username of the user that won't receive the message
- */
-function broadcastChatMessage(message, exceptionUsername) {
-    var broadcastList = "";//use for console.log
-    for (var i = 0; i < usernameList.length; i++) {
-        if (usernameList[i] == exceptionUsername) {
-            continue;
-        }
-        forwardChatMessageToACLient(usernameList[i], message);
-
-        broadcastList += usernameList[i] + "    ";
-    }
-
-    console.log("Broadcast chat message to all users: " + broadcastList);
 }
 
 /**
  * Sends a simple text to the receivers. The difference with the forwardChatMessageToAClient is that this method
- * send the chat message to all users. The chat message includes the name of the board's owner
- * @param clientUsername
+ * send the chat message to all users.
  * @param message a string
  * @param addToScreenChat a boolean indicating if the message should be added into the screen chat. Default value is
  * true which means the message will be added into the chat screen.
@@ -226,7 +208,27 @@ function sendChatMessageToClients(message, addToScreenChat) {
 }
 
 /**
- * Sends a text message to another user
+ * broadcast a chat message input by the board's owner to all users in the board.
+ * @param message a string
+ * @param exceptionUsername the username of the user that won't receive the message
+ */
+function broadcastChatMessage(message, exceptionUsername) {
+    var broadcastList = "";//use for console.log
+    var data = wrapData(message, DataTransferType.CHAT_MESSAGE);
+
+    for (var i = 0; i < usernameList.length; i++) {
+        if (usernameList[i] == exceptionUsername) {
+            continue;
+        }
+        sendDataToAClient(usernameList[i], data);
+        broadcastList += usernameList[i] + "    ";
+    }
+
+    console.log("Broadcast chat message to all users: " + broadcastList);
+}
+
+/**
+ * Sends a text message input by board's owner to another user
  * @param clientUsername the username of the user to who the message will be delivered
  * @param message
  * @param addToScreenChat
@@ -245,14 +247,6 @@ function sendChatMessageToAClient(clientUsername, message, addToScreenChat) {
 }
 
 /**
- * Forwards the text message from a user to another peer
- */
-function forwardChatMessageToACLient(clientUsername, message) {
-    console.log("Forwards chat msg to ", clientUsername);
-    sendDataToAClient(clientUsername, wrapData(message, DataTransferType.CHAT_MESSAGE));
-}
-
-/**
  * Sends data to a specific user
  * @param clientUsername
  * @param data
@@ -263,5 +257,21 @@ function sendDataToAClient(clientUsername, data) {
         sendDataToAPeer(targetDataChannel, data);
     } else {
         console.log("Cannot find data channel for username: " + clientUsername);
+    }
+}
+
+/**
+ * This function forwards the data sent by a guest user to the rest of guest users except the data's owner which is
+ * also a guest user. This doesn't change the original structure of the data
+ */
+function forwardDataToAllUsers(data) {
+    for(var i = 0; i < usernameList.length; i++) {
+        if(usernameList[i] == data.sender){
+            // if an exception user
+            continue;
+        }
+
+        var targetDataChannel = dataChannelList[usernameList[i]];
+        sendDataToAPeer(targetDataChannel, data);
     }
 }
