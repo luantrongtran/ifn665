@@ -175,19 +175,7 @@ function onMessageReceivedFromAClientCallback(event) {
         if (canvasData.command == DrawingCommands.DRAWING) {
             //if the command is drawing
             var canvasObj = canvasData.canvasData;
-
-            if(arrDrawingObject[data.sender]) {
-                //if the drawing object of the sender has been added into arrDrawingObject
-                updateDrawingObjectOfAPeer(data.sender, canvasObj);
-            } else {
-                // if the drawing object of the sender is not added into the arrDrawingObject
-                //add the drawing object into arrDrawingObject
-                arrDrawingObject[data.sender] = new fabric.Rect(canvasObj);
-
-                //add the drawing object into the canvas
-                canvas.add(arrDrawingObject[data.sender]);
-            }
-            //console.log("drawing object from a guest: ", canvasObj);
+            updateDrawingObjectOfAPeer(data.sender, canvasObj);
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
             console.log("Finish drawing : " , data.sender);
             delete arrDrawingObject[data.sender];

@@ -15,8 +15,8 @@ var isDebugged = false;
 
 var TOOL = {
     NONE: "none",
-    CIRCLE: "circle",
-    RECTANGLE: "rectangle",
+    ELLIPSE: "ellipse",
+    RECTANGLE: "rect",
     LINE: "line"
 };
 
@@ -29,7 +29,7 @@ var canvas;
  * The shape that the user is selecting in the tool bar.
  * Default is no tool selected
  */
-var selectedTool = TOOL.RECTANGLE;
+var selectedTool = TOOL.ELLIPSE;
 
 var selectedColor = "#ff0000";
 
@@ -105,21 +105,34 @@ function onMouseUpCanvas(o) {
  */
 function onMouseMoveCanvas(o) {
 
-    if (isMouseDown && selectedTool != TOOL.NONE) {
+    if (isMouseDown) {
         var pointer = canvas.getPointer(o.e);
 
+        if(selectedTool == TOOL.RECTANGLE) {
+            if (mouseDownPosition.x > pointer.x) {
+                drawingObject.set({left: pointer.x});
+            }
+            if (mouseDownPosition.y > pointer.y) {
+                drawingObject.set({top: pointer.y});
+            }
 
-        if(mouseDownPosition.x > pointer.x) {
-            drawingObject.set({left: pointer.x});
-        }
-        if(mouseDownPosition.y > pointer.y) {
-            drawingObject.set({top: pointer.y});
-        }
+            drawingObject.set({
+                width: Math.abs(mouseDownPosition.x - pointer.x),
+                height: Math.abs(mouseDownPosition.y - pointer.y)
+            });
+        } else if (selectedTool == TOOL.ELLIPSE) {
+            if (mouseDownPosition.x > pointer.x) {
+                drawingObject.set({left: pointer.x});
+            }
+            if (mouseDownPosition.y > pointer.y) {
+                drawingObject.set({top: pointer.y});
+            }
 
-        drawingObject.set({
-            width: Math.abs(mouseDownPosition.x - pointer.x),
-            height: Math.abs(mouseDownPosition.y - pointer.y)
-        });
+            drawingObject.set({
+                rx: Math.abs(mouseDownPosition.x - pointer.x)/2,
+                ry: Math.abs(mouseDownPosition.y - pointer.y)/2
+            });
+        }
 
         if(isBoardOwner) {
             onMouseMoveExtraEventForOwner();
@@ -154,7 +167,7 @@ function onMouseDownCanvas(o) {
 
     if (selectedTool == TOOL.NONE) {
         return;
-    } else if (selectedTool = TOOL.RECTANGLE) {
+    } else if (selectedTool == TOOL.RECTANGLE) {
         drawingObject = new fabric.Rect({
             originX: "left",
             originY: "top",
@@ -163,6 +176,17 @@ function onMouseDownCanvas(o) {
             fill: selectedColor,
             width: 0,
             height: 0
+        });
+    } else if (selectedTool == TOOL.ELLIPSE) {
+        console.log("drawing circle");
+        drawingObject = new fabric.Ellipse({
+            fill: selectedColor,
+            originX: "left",
+            originY: "top",
+            left: mouseDownPosition.x,
+            top: mouseDownPosition.y,
+            rx: 0,
+            ry: 0
         });
     }
 
@@ -173,22 +197,68 @@ function onMouseDownCanvas(o) {
     }
 }
 
+/**
+ * Update the object which is being drawn by another peer
+ * @param peerUsername the username of the peer who is drawing the object
+ * @param newDrawingObject the data of the drawing object
+ */
 function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
-    if(newDrawingObject.type == "rect") {
-        updateDrawingRectangleOfAPeer(peerUsername, newDrawingObject);
+    if(arrDrawingObject[peerUsername]) {
+        //if the drawing object of the sender has been added into arrDrawingObject
+
+        //Get the drawing object of a guest user using his/her username which is peerUsername
+        var oldDrawingObject = arrDrawingObject[peerUsername];
+
+        if(newDrawingObject.type == TOOL.RECTANGLE) {
+            updateDrawingRectangleOfAPeer(oldDrawingObject, newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.ELLIPSE) {
+            updateDrawingEllipseOfAPeer(oldDrawingObject, newDrawingObject);
+        }
+    } else {
+        // if the drawing object of the sender is not added into the arrDrawingObject
+        //add the drawing object into arrDrawingObject
+        if(newDrawingObject.type == TOOL.RECTANGLE) {
+            arrDrawingObject[peerUsername] = new fabric.Rect(newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.ELLIPSE) {
+            arrDrawingObject[peerUsername] = new fabric.Ellipse(newDrawingObject);
+        }
+
+        //add the drawing object into the canvas
+        canvas.add(arrDrawingObject[peerUsername]);
     }
+
+
 }
 
-function updateDrawingRectangleOfAPeer(peerUsername, newRectangleObject) {
-    var targetDrawingObj = arrDrawingObject[peerUsername];
+/**
+ * This function is used to update the drawing object if the object is a rectangle
+ * @param peerUsername
+ * @param newRectangleObject
+ */
+function updateDrawingRectangleOfAPeer(oldRectangleObject, newRectangleObject) {
 
-    targetDrawingObj.set({
+    oldRectangleObject.set({
         left: newRectangleObject.left,
         top: newRectangleObject.top,
         width: newRectangleObject.width,
         height: newRectangleObject.height
     });
 
+    canvas.renderAll();
+}
+
+/**
+ * This function is used to update the drawing object if the object is a ellipse
+ * @param oldEllipseObj
+ * @param newEllipseObj
+ */
+function updateDrawingEllipseOfAPeer(oldEllipseObj, newEllipseObj) {
+    oldEllipseObj.set({
+        left: newEllipseObj.left,
+        top: newEllipseObj.top,
+        rx: newEllipseObj.rx,
+        ry: newEllipseObj.ry
+    });
     canvas.renderAll();
 }
 
