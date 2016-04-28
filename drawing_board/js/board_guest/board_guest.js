@@ -24,7 +24,8 @@ function sendRequestToJoinABoard() {
 }
 
 /**
- * handles the response from the server to check if the request to join a board is successful or not
+ * handles the response from the server to check if the request to join a board is successfully delivered to the
+ * board's owner or not. This doesn't imply if the board's owner accept or deny the request.
  * @param data
  */
 function onRequestToJoinABoard(data) {
@@ -33,15 +34,26 @@ function onRequestToJoinABoard(data) {
         alert("Please wait for the owner's response");
     } else {
         //failed to sendToWebSocketServer the request
-        alert(data.message);
+        page2_displayErrorMsg(data.message);
     }
 }
 
 /**
- * The client's browser receives WebRTC offer from the owner
+ * Receives the response from the board's owner that he/she denied the request to join his/her board.
+ */
+function onRequestDenied() {
+    console.log("The board's owner denied the request");
+    page2_displayErrorMsg("The board owner denied your request");
+}
+
+/**
+ * The client's browser receives WebRTC offer from the owner. This means the board's owner has accepted the
+ * request to join the board of the guest user.
  */
 function onOfferReceived(data) {
     console.log("Receive WebRTC offer from the board owner: " + data.board_owner);
+
+    goToPage3();//go to drawing board.
 
     boardOwnerUsername = data.board_owner;
 

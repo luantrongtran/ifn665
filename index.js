@@ -26,16 +26,20 @@ wss.on('connection', function (connection) {
 
         switch (data.type) {
             case "login":
+                //the request of logging in.
                 handleLoginRequest(connection, data);
                 break;
             case "createNewBoard":
+                //the request of creating new board.
                 handleCreateNewBoard(connection, data);
                 break;
             case "requestToJoinABoard":
+                //The request to join a board of a guest user
                 handleRequestToJoinABoard(connection, data);
                 break;
-            case "answer":
-                onAnswerReceived(connection, data);
+            case "denyRequest":
+                //this request is sent by a board's owner when he/she denied a request to join his/her board from another user
+                onDenyRequestReceived(connection, data);
                 break;
 
             //Handlers for setting up WebRTC
@@ -102,28 +106,20 @@ function onOffer(con, data) {
     });
 }
 
-function onAnswerReceived (connection, data) {
-    var sender = data.sender;//This is the username of the one sending the request to join an existing board
-    var senderCon = users[sender];
+/**
+ * Handle the board owners' request denying a request to join their board
+ * @param connection
+ * @param data
+ */
+function onDenyRequestReceived (connection, data) {
+    var sender = data.client_username;//This is the username of the the guest user sending the request to join an existing board
+    var guestUserCon = users[sender];
 
-    if (!data.success) {
-        //if the board's owner didn't accept the request to join the board
-
-        sendTo(senderCon, {
-            type: "answer",
-            board_owner: connection.name,
-            success: false
-        });
-        return;
-    }
-
-    //var sendToWebSocketServer = data.sender;
-    sendTo(senderCon, {
-       type: "answer",
-        board_owner: connection.name,
-        success: true
-        //answer: data.answer
+    sendTo(guestUserCon, {
+        type: "requestDenied",
+        board_owner: connection.name
     });
+    return;
 }
 
 /**

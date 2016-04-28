@@ -19,27 +19,28 @@ function createNewBoard() {
 
     var data = {
         type: "createNewBoard",
-        username: page1_username.value,
-        board_id: page2_board_id.value
+        username: page1_username.value, // the username of the guest user
+        board_id: page2_board_id.value //board id to which the guest user wants to connect
     };
 
     console.log("Create new board: ", data);
 
+    //Send the request to the server.
     sendToWebSocketServer(data);
 }
 
 /**
  * Receives the result of creating new board from server.
- * @param data
+ * @param data data.success is true if the board is successfully created, otherwise, data.success is false
  */
 function onNewBoardCreated (data) {
     console.log("received data for creating board: ", data);
     if (data.success) {
         //board created successfully
-        isBoardOwner = true;
+        isBoardOwner = true; //isBoardOwner is declared in initialising.js
         goToPage3();
     } else {
-        alert("Failed to create new board! Please choose another id.");
+        page2_displayErrorMsg("Failed to create new board! Please choose a different id.");
     }
 }
 
@@ -54,6 +55,15 @@ function onReceiveRequestToJoinTheBoard(data) {
         //accept the request to join the board
         //Creates peer2peer connection offer and sends to the board's owner
         addNewUser(data.client_username);
+    } else {
+        //deny the request
+        console.log("deny request to join the board from ", data.client_username);
+        var repliedData = {
+            type: "denyRequest",
+            client_username: data.client_username,
+            sender: currentUsername
+        };
+        sendToWebSocketServer(repliedData);
     }
 }
 

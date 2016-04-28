@@ -28,10 +28,10 @@ connection.onmessage = function (message) {
             //Receives the request to join the board
             onReceiveRequestToJoinTheBoard(data);
             break;
-        //case "answer":
-        //    //Receive answer from the board's owner to see if he/she accepted the request to join the board
-        //    //onReceiveAnswer(data);
-        //    break;
+        case "requestDenied":
+            //The board's owner denied the request to join the board of a guest user
+            onRequestDenied();
+            break;
 
         ///////From now on is the handler of WebRTC
         case "offer":

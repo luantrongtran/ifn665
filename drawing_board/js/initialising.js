@@ -37,16 +37,30 @@ var page2 = document.querySelector("#page2");
 var page2_btnCreate = document.querySelector("#page2_btnCreate");
 var page2_btnJoin = document.querySelector("#page2_btnJoin");
 var page2_board_id = document.querySelector("#page2_board_id");
+var page2_err_msg = document.querySelector("#page2_err_msg");
 
 //add event handler for button used to create a new board
 page2_btnCreate.addEventListener("click", function() {
+    if(page2_board_id.value.trim() == "") {
+        return;
+    }
+
    createNewBoard();
 });
 //add event handler for button used to join an existing board
 page2_btnJoin.addEventListener("click", function() {
+    if(page2_board_id.value.trim() == "") {
+        page2_displayErrorMsg("Enter board ID");
+        return;
+    }
+
     sendRequestToJoinABoard();
-    goToPage3();
 });
+
+function page2_displayErrorMsg(msg) {
+    page2_err_msg.style.display = 'block';
+    page2_err_msg.innerText = msg;
+}
 
 //testing
 //var page2_test = document.querySelector("#page2_test");
@@ -107,7 +121,7 @@ function setupPage3ForGuest() {
             return;
         }
 
-        sendChatMessageToServer(msg);
+        sendChatMessageToServer(msg, false);
     });
 }
 
