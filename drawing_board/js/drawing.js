@@ -29,9 +29,14 @@ var canvas;
  * The shape that the user is selecting in the tool bar.
  * Default is no tool selected
  */
-var selectedTool = TOOL.ELLIPSE;
+var selectedTool = TOOL.LINE;
 
 var selectedColor = "#ff0000";
+
+var selectedStrokeWidth = 1;
+
+//the border color of circle or rectangle
+var selectedStrokeColor = "#000000";
 
 /**
  * store the object that is being drawn
@@ -94,7 +99,7 @@ function onMouseUpCanvas(o) {
         onMouseUpExtraEventForGuest();
     }
 
-    if(debug) {
+    if(isDebugged) {
         dbIsDrawing.innerHTML = false + "";
     }
 }
@@ -132,6 +137,11 @@ function onMouseMoveCanvas(o) {
                 rx: Math.abs(mouseDownPosition.x - pointer.x)/2,
                 ry: Math.abs(mouseDownPosition.y - pointer.y)/2
             });
+        } else if (selectedTool == TOOL.LINE) {
+            drawingObject.set({
+                x2: pointer.x,
+                y2: pointer.y
+            });
         }
 
         if(isBoardOwner) {
@@ -143,14 +153,14 @@ function onMouseMoveCanvas(o) {
 
     canvas.renderAll();
 
-    if(debug == true) {
+
+    if(isDebugged == true) {
         dbDrawingObjInfo.innerHTML = JSON.stringify(drawingObject);
 
         if(isMouseDown) {
             dbIsDrawing.innerHTML = "true";
         }
-
-       dbCustomInfo.innerHTML = drawingObject.id;
+       dbCustomInfo.innerHTML = drawingObject.x1 + ", " + drawingObject.y1 + ", " + drawingObject.x2 + ", " + drawingObject.y2;
     }
 }
 
@@ -175,10 +185,11 @@ function onMouseDownCanvas(o) {
             top: mouseDownPosition.y,
             fill: selectedColor,
             width: 0,
-            height: 0
+            height: 0,
+            strokeWidth: selectedStrokeWidth,
+            stroke: selectedStrokeColor
         });
     } else if (selectedTool == TOOL.ELLIPSE) {
-        console.log("drawing circle");
         drawingObject = new fabric.Ellipse({
             fill: selectedColor,
             originX: "left",
@@ -186,13 +197,23 @@ function onMouseDownCanvas(o) {
             left: mouseDownPosition.x,
             top: mouseDownPosition.y,
             rx: 0,
-            ry: 0
+            ry: 0,
+            strokeWidth: selectedStrokeWidth,
+            stroke: selectedStrokeColor
         });
+    } else if (selectedTool == TOOL.LINE) {
+        drawingObject = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
+            originX: "left",
+            originY: "top",
+            stroke: selectedColor,
+            strokeWidth: selectedStrokeWidth,
+        });
+
     }
 
     addObjectIntoCanvas(drawingObject);
 
-    if (debug) {
+    if (isDebugged) {
         dbSelectedTool.innerHTML = selectedTool + "";
     }
 }
@@ -213,7 +234,11 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             updateDrawingRectangleOfAPeer(oldDrawingObject, newDrawingObject);
         } else if (newDrawingObject.type == TOOL.ELLIPSE) {
             updateDrawingEllipseOfAPeer(oldDrawingObject, newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.LINE) {
+            updateDrawingLineOfAPeer(oldDrawingObject, newDrawingObject);
         }
+
+        canvas.renderAll();
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
         //add the drawing object into arrDrawingObject
@@ -221,30 +246,29 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             arrDrawingObject[peerUsername] = new fabric.Rect(newDrawingObject);
         } else if (newDrawingObject.type == TOOL.ELLIPSE) {
             arrDrawingObject[peerUsername] = new fabric.Ellipse(newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.LINE) {
+            console.log("adding drawing line");
+            arrDrawingObject[peerUsername] = new fabric.Line([newDrawingObject.left, newDrawingObject.top,
+                newDrawingObject.left, newDrawingObject.top], newDrawingObject);
         }
 
         //add the drawing object into the canvas
         canvas.add(arrDrawingObject[peerUsername]);
     }
-
-
 }
 
 /**
  * This function is used to update the drawing object if the object is a rectangle
- * @param peerUsername
- * @param newRectangleObject
+ * @param oldRectangleObject the old object need updating
+ * @param newRectangleObject the new object contain new information
  */
 function updateDrawingRectangleOfAPeer(oldRectangleObject, newRectangleObject) {
-
     oldRectangleObject.set({
         left: newRectangleObject.left,
         top: newRectangleObject.top,
         width: newRectangleObject.width,
         height: newRectangleObject.height
     });
-
-    canvas.renderAll();
 }
 
 /**
@@ -259,7 +283,19 @@ function updateDrawingEllipseOfAPeer(oldEllipseObj, newEllipseObj) {
         rx: newEllipseObj.rx,
         ry: newEllipseObj.ry
     });
-    canvas.renderAll();
+}
+
+/**
+ * This function is used to update the drawing object if the object is a line
+ * @param oldLineObj
+ * @param newLineObj
+ */
+function updateDrawingLineOfAPeer(oldLineObj, newLineObj) {
+    console.log("update drawing line");
+    oldLineObj.set({
+        x2: (newLineObj.x1 < 0) ? newLineObj.left + newLineObj.width : newLineObj.left ,
+        y2: (newLineObj.y1 < 0) ? newLineObj.top + newLineObj.height : newLineObj.top
+    });
 }
 
 /**

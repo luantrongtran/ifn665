@@ -47,6 +47,6 @@ function hasUserMedia() {
  * @param data the data needs to be sent. for ex: {type: '', content: ''}
  */
 function sendDataToAPeer(datachannel, data) {
-    console.log("send data to " + datachannel.name, data);
+    console.log("send data to " + datachannel.name + " " + data);
     datachannel.send(JSON.stringify(data));
 }

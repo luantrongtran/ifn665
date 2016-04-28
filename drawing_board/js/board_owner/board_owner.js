@@ -160,7 +160,6 @@ function preparePeerConnectionForANewClient(clientUsername) {
 function onMessageReceivedFromAClientCallback(event) {
     console.log("data channel receives msg: ", event.data);
     var data = JSON.parse(event.data);
-    console.log("Data channel receives message from: ", data.sender);
 
     if (data.type == DataTransferType.CHAT_MESSAGE) {
         //if the data is a chat message

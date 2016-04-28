@@ -37,6 +37,7 @@ function finishDrawing_Guest() {
  */
 function onMouseMoveExtraEventForGuest() {
     //sending the drawing object to board's owner
+    console.log("drawing object sent to server: " + JSON.stringify(drawingObject));
     sendDrawingObjectToServer(drawingObject);
 }
 
