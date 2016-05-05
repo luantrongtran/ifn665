@@ -134,6 +134,9 @@ function preparePeerConnectionForANewClient(clientUsername) {
         newDataChannel.onopen = function () {
             console.log("Data channel opened with " + clientUsername);
             sendChatMessageToAClient(clientUsername, "Welcome on board, " + clientUsername, false);
+
+            var connected = formatMessageColor("(" + clientUsername + " connected)", 'green');
+            addMessageToChatScreen(connected);
         };
 
         newDataChannel.onclose = function () {

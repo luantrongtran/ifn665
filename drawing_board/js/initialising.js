@@ -88,6 +88,12 @@ var toolbar_line = document.querySelector("#toolbar_line");
 
 var color_picker = document.querySelector("#color_picker");
 
+var edit_custom_colors = document.querySelector("#edit_custom_colors");
+var done_custom_colors = document.querySelector("#done_custom_colors");
+
+//select color for chat msg
+var text_color_picker = document.querySelector("#text_color_picker");
+
 function addMessageToChatScreen(msg) {
     //chat_screen.value += msg + "\n";
     chat_screen.innerHTML += msg + "<br>";
@@ -103,7 +109,8 @@ function addMessageToChatScreen(msg) {
  */
 function setupPage3ForOwner() {
     createDrawingToolbar();
-//setup chat box
+
+    //setup chat box
     chat_send_button.addEventListener("click", function() {
         var msg = chat_input_message.value.trim();
         chat_input_message.value = "";// reset the input
@@ -168,16 +175,56 @@ function createDrawingToolbar() {
  * creates color picker
  */
 function createColorPicker() {
-    var color = ['black','#0433ff','#aa7942','#00fdff','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#ffffff'];
-    var colorButtons = color_picker.querySelectorAll(".color_btn");
+    var colors = ['#000000','#0433ff','#aa7942','#00fdff','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#CCCCCC','#ffffff'];
+    //var colorButtons = color_picker.querySelectorAll(".custom_color_btn");
+    //
+    //for(var i = 0; i < colorButtons.length; i++) {
+    //    colorButtons[i].style.backgroundColor = colors[i];
+    //
+    //    colorButtons[i].addEventListener("click", function () {
+    //        selectedColor = this.style.backgroundColor;
+    //    })
+    //}
 
-    for(var i = 0; i < colorButtons.length; i++) {
-        colorButtons[i].style.backgroundColor = color[i];
+    //the elements of custom_color_divs are the wrappers of the elements in custom_color_buttons
+    var custom_color_divs = color_picker.querySelectorAll(".column");
+    for(var i = 0; i < custom_color_divs.length; i++) {
+        custom_color_divs[i].style.backgroundColor = colors[i];
 
-        colorButtons[i].addEventListener("click", function () {
+        custom_color_divs[i].addEventListener("click", function() {
             selectedColor = this.style.backgroundColor;
-        })
+        });
     }
+
+    var custom_color_buttons = color_picker.querySelectorAll(".custom_color_btn");
+    for(i = 0; i < custom_color_buttons.length; i++) {
+        custom_color_buttons[i].addEventListener("click", function(event) {
+            event.stopPropagation();
+        });
+        custom_color_buttons[i].addEventListener("change", function () {
+            this.parentElement.style.backgroundColor = this.value.toString();
+        });
+    }
+
+    edit_custom_colors.addEventListener("click", function () {
+        done_custom_colors.style.display = "block";
+        edit_custom_colors.style.display = "none";
+
+        var custom_color_buttons = color_picker.querySelectorAll(".custom_color_btn");
+        for(i = 0; i < custom_color_buttons.length; i++) {
+            custom_color_buttons[i].style.display = "block";
+        }
+    });
+
+    done_custom_colors.addEventListener("click", function() {
+        edit_custom_colors.style.display = "block";
+        done_custom_colors.style.display = "none";
+
+        var custom_color_buttons = color_picker.querySelectorAll(".custom_color_btn");
+        for(i = 0; i < custom_color_buttons.length; i++) {
+            custom_color_buttons[i].style.display = "none";
+        }
+    });
 }
 
 /**
@@ -203,6 +250,13 @@ function goToPage3() {
     page3.style.display = "block";
 
     initCanvas();
+
+    //setup color picker for chat text
+    text_color_picker.addEventListener("change", function () {
+        selectedTextColor = this.value.toString();
+        chat_input_message.style.color = this.value.toString();
+    });
+
     if(isBoardOwner) {
         setupPage3ForOwner();
     } else {

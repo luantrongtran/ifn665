@@ -122,7 +122,7 @@ function preparePeerConnection() {
 
 function onDataChannelWithBoardOwnerOpenedCallBack() {
     console.log("Data channel opened");
-    sendChatMessageToServer("Hi, I'm " + currentUsername, false);
+    sendChatMessageToServer("Hi", false);
 }
 
 /**

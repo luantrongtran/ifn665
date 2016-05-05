@@ -72,10 +72,22 @@ function wrapData(data, dataType) {
     };
 }
 
+var selectedTextColor = 'black';
 /**
  * format the chat message. Since a chat message includes 2 parts which are sender's name and the text message
  */
 function formatChatMessage(username, message) {
-    var formatedStr = "<b>" + username + ":</b>" + message;
-    return formatedStr
+    var formattedStr = "<b style='margin-right: 5px;'>"
+        + username + ":</b>" + formatMessageColor(message, selectedTextColor);
+    return formattedStr;
+}
+
+/**
+ * Format color for the given message
+ * @param msg
+ * @param color
+ * @return {string}
+ */
+function formatMessageColor(msg, color) {
+    return "<span style='color: " + color + ";'>" + msg + "</span>";
 }

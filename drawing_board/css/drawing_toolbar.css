@@ -56,3 +56,15 @@
     width: 20px;
     height: 20px;
 }
+
+.custom_color_btn {
+    opacity: 0;
+    border: none;
+    padding: 0;
+
+    width: 20px;
+    height: 20px;
+
+    /*not display at beginning*/
+    display: none;
+}
