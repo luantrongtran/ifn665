@@ -76,7 +76,7 @@ function initCanvas() {
     console.log("initializing canvas");
 
     //var canvasElement = document.querySelector("#canvas");
-    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 500});
+    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 500, backgroundColor: "#ffffff"});
 
     //canvas.isDrawingMode = true;
 

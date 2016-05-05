@@ -10,7 +10,7 @@
 /**
  * Created by lua on 4/04/2016.
  */
-var connection = new WebSocket("ws://192.168.2.6:8888");
+var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.6.86:8888");
 
 var currentUsername;// The username of the user
 
@@ -78,6 +78,16 @@ var chat_screen = document.querySelector("#chat_screen");
 var chat_input_message = document.querySelector("#chat_input_message");
 var chat_send_button = document.querySelector("#chat_send_button");
 
+//drawing toolbar
+var drawing_toolbar = document.querySelector("#toolbar");
+
+var drawing_shape = document.querySelector("#drawing_shape");
+var toolbar_ellipse = document.querySelector("#toolbar_ellipse");
+var toolbar_rectangle = document.querySelector("#toolbar_rectangle");
+var toolbar_line = document.querySelector("#toolbar_line");
+
+var color_picker = document.querySelector("#color_picker");
+
 function addMessageToChatScreen(msg) {
     //chat_screen.value += msg + "\n";
     chat_screen.innerHTML += msg + "<br>";
@@ -92,6 +102,7 @@ function addMessageToChatScreen(msg) {
  * Setup page 3 for the board's owner
  */
 function setupPage3ForOwner() {
+    createDrawingToolbar();
 //setup chat box
     chat_send_button.addEventListener("click", function() {
         var msg = chat_input_message.value.trim();
@@ -111,7 +122,7 @@ function setupPage3ForOwner() {
  * Setup page 3 for the guest
  */
 function setupPage3ForGuest() {
-
+    createDrawingToolbar();
     //setup chat box
     chat_send_button.addEventListener("click", function() {
         var msg = chat_input_message.value.trim();
@@ -125,6 +136,59 @@ function setupPage3ForGuest() {
     });
 }
 
+/**
+ * setup drawing tool
+ */
+function createDrawingToolbar() {
+    createColorPicker();
+
+    toolbar_ellipse.addEventListener("click", function() {
+        unselectDrawingTool();
+        $(this).addClass("clicked");
+
+        selectedTool = TOOL.ELLIPSE;
+    });
+
+    toolbar_rectangle.addEventListener("click", function() {
+        unselectDrawingTool();
+        $(this).addClass("clicked");
+
+        selectedTool = TOOL.RECTANGLE;
+    });
+
+    toolbar_line.addEventListener("click", function(){
+        unselectDrawingTool();
+        $(this).addClass("clicked");
+
+        selectedTool = TOOL.LINE;
+    });
+}
+
+/**
+ * creates color picker
+ */
+function createColorPicker() {
+    var color = ['black','#0433ff','#aa7942','#00fdff','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#ffffff'];
+    var colorButtons = color_picker.querySelectorAll(".color_btn");
+
+    for(var i = 0; i < colorButtons.length; i++) {
+        colorButtons[i].style.backgroundColor = color[i];
+
+        colorButtons[i].addEventListener("click", function () {
+            selectedColor = this.style.backgroundColor;
+        })
+    }
+}
+
+/**
+ * unselect the current drawing tool. This affects user interface only
+ */
+function unselectDrawingTool() {
+    var buttons = drawing_shape.querySelectorAll(".drawing_tool_btn");
+    for (var i = 0; i < buttons.length; i++) {
+        $(buttons[i]).removeClass("clicked");
+    }
+}
 /** End page 3 **/
 
 function goToPage2() {
@@ -144,6 +208,14 @@ function goToPage3() {
     } else {
         setupPage3ForGuest();
     }
+
+    page3.addEventListener("resize1", function() {
+        console.log("resizing");
+    });
+}
+
+function resize() {
+    console.log("abc");
 }
 
 /**
