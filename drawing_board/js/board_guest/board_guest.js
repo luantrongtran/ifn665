@@ -152,6 +152,7 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
 
 function onDataChannelWithBoardOwnerClosedCallBack() {
     console.log("Data channel closed");
+    handleServerConnectionDisconnected();
 }
 
 /**
@@ -176,7 +177,9 @@ function sendChatMessageToServer(message, addToScreenChat) {
 }
 
 /**
- * happens when the connection with server is disconnected
+ * happens when the connection with server is disconnected.
+ * This function is invoked in onclose event of datachannel and in sendTo() function which sends data to the board's
+ * owner
  */
 function handleServerConnectionDisconnected() {
     var disMessage = formatMessageColor("(Server disconnected)", "red");

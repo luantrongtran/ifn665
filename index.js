@@ -225,8 +225,17 @@ function handleCreateNewBoard(con, data) {
 }
 
 function sendTo(con, message) {
-    console.log("send data to: " + con.name + ": " , message);
-    con.send(JSON.stringify(message));
+    try {
+        if (con) {
+            console.log("send data to: " + con.name + ": " , message);
+            con.send(JSON.stringify(message));
+        }
+    } catch (e) {
+        if (con.readyState == 2/*closing*/ || con.readyState == 3/*closed*/) {
+            //if connection has been closed then remove the user.
+            removeAnUser(con.name);
+        }
+    }
 }
 
 /**
@@ -256,15 +265,10 @@ function sendHeartBeatToAnUser(username) {
 
     var targetConnection = users[username];
 
-    try {
-        sendTo(targetConnection, {
-            type: "heartBeat"
-        });
-    } catch (e) {
-        if (targetConnection.readyState == 2/*closeing*/ || targetConnection.readyState == 3/*closed*/) {
-            removeAnUser(username);
-        }
-    }
+    sendTo(targetConnection, {
+        type: "heartBeat"
+    });
+
 }
 
 /**

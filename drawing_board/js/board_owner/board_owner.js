@@ -141,6 +141,7 @@ function preparePeerConnectionForANewClient(clientUsername) {
 
         newDataChannel.onclose = function () {
             console.log("Data channel closed");
+            handleGuestConnectionDisconnectedUnexpectedly(this);
         };
         newDataChannel.onerror = function() {
             console.log("Data Channel error");
