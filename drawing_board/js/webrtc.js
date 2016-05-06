@@ -19,7 +19,8 @@ var DataTransferType = {
 var DrawingCommands = {
     DRAWING: "drawing",
     FINISH_DRAWING: "finish_drawing",
-    DELETE: "delete_object"
+    DELETE: "delete_object",
+    SYNC: "synchronising_drawing_objects" //synchronising canvas data with a new user
 };
 
 /**

@@ -133,10 +133,16 @@ function preparePeerConnectionForANewClient(clientUsername) {
 
         newDataChannel.onopen = function () {
             console.log("Data channel opened with " + clientUsername);
+
+            //Send welcome message to the new user
             sendChatMessageToAClient(clientUsername, "Welcome on board, " + clientUsername, false);
 
+            //Add notification message on chat screen
             var connected = formatMessageColor("(" + clientUsername + " connected)", 'green');
             addMessageToChatScreen(connected);
+
+            //Synchronising the new user by sending canvas data including drawing objects have been drawn
+            sendSynchronisedCanvasDataToAnUser(clientUsername);
         };
 
         newDataChannel.onclose = function () {

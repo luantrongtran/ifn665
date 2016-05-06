@@ -146,6 +146,9 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
             //console.log("Finish drawing : " , data.sender);
             delete arrDrawingObject[data.sender];
+        } else if (canvasData.command = DrawingCommands.SYNC) {
+            var syncData = canvasData.syncData;
+            handleSyncDataFromServer(syncData);
         }
     }
 }
@@ -184,4 +187,19 @@ function sendChatMessageToServer(message, addToScreenChat) {
 function handleServerConnectionDisconnected() {
     var disMessage = formatMessageColor("(Server disconnected)", "red");
     addMessageToChatScreen(disMessage);
+}
+
+/**
+ * Handle syn data sent from server. The data contains drawing objects have been added since the board was crated.
+ */
+function handleSyncDataFromServer (syncData) {
+    console.log("Synchronising  canvas data: " + syncData.length);
+    for (var i = 0; i < syncData.length; i++) {
+        var drawnObj = syncData[i];
+
+        var convertedObj = castToFabricObject(drawnObj);
+        console.log(convertedObj);
+        console.log(convertedObj.selectable);
+        canvas.add(convertedObj);
+    }
 }

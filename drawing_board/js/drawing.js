@@ -244,16 +244,9 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
         renderCanvas();
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
+
         //add the drawing object into arrDrawingObject
-        if(newDrawingObject.type == TOOL.RECTANGLE) {
-            arrDrawingObject[peerUsername] = new fabric.Rect(newDrawingObject);
-        } else if (newDrawingObject.type == TOOL.ELLIPSE) {
-            arrDrawingObject[peerUsername] = new fabric.Ellipse(newDrawingObject);
-        } else if (newDrawingObject.type == TOOL.LINE) {
-            console.log("adding drawing line");
-            arrDrawingObject[peerUsername] = new fabric.Line([newDrawingObject.left, newDrawingObject.top,
-                newDrawingObject.left, newDrawingObject.top], newDrawingObject);
-        }
+        arrDrawingObject[peerUsername] = castToFabricObject(newDrawingObject);
 
         //add the drawing object into the canvas
         canvas.add(arrDrawingObject[peerUsername]);
@@ -337,4 +330,33 @@ function addObjectIntoCanvas(fabricObject) {
 var autoIndex = 0; //
 function objectIdGenerator() {
     return currentUsername + "_" + autoIndex++;
+}
+
+/**
+ * Convert an object into Fabricjs object
+ */
+function castToFabricObject(obj) {
+    if(obj) {
+        var returnObj;
+        if(obj.type == TOOL.RECTANGLE) {
+            returnObj = new fabric.Rect(obj);
+        } else if (obj.type == TOOL.ELLIPSE) {
+            returnObj = new fabric.Ellipse(obj);
+        } else if (obj.type == TOOL.LINE) {
+            returnObj = new fabric.Line([obj.left, obj.top,
+                obj.left + obj.width, obj.top + obj.height], obj);
+        } else {
+            return null;
+        }
+
+        /**
+         * After casting, the attribute "selectable" of the new fabricjs is set to true by default.
+         * Therefore, its 'selectable' attribute has to be set based on the canvas.selection
+         */
+        returnObj.selectable = canvas.selection;
+
+        return returnObj;
+    } else {
+        return null;
+    }
 }

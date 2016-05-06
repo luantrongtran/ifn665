@@ -18,7 +18,7 @@ function sendDrawingObjectToOtherPeers (drawingObj) {
 /**
  * Sends a canvas object such as rectangle, circles, ...
  * @param clientUsername
- * @param data {command: //see the DrawingCommand, canvasData: object}
+ * @param canvasData example data: {command: //see the DrawingCommand, canvasData: object}
  */
 function sendCanvasDataToAClient(clientUsername, canvasData) {
     sendDataToAClient(clientUsername, wrapData(canvasData, DataTransferType.CANVAS_DATA));
@@ -54,4 +54,19 @@ function onMouseMoveExtraEventForOwner() {
 
 function onMouseUpExtraEventForOwner() {
     finishDrawing_Owner();
+}
+
+/**
+ * Send all drawn objects to a new user
+ * @param username of the new user
+ */
+function sendSynchronisedCanvasDataToAnUser(username) {
+    var drawnObjects = canvas.getObjects();
+
+    var syncData = {
+        command: DrawingCommands.SYNC,
+        syncData: drawnObjects
+    };
+
+    sendCanvasDataToAClient(username, syncData);
 }
