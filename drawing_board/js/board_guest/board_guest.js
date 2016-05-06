@@ -174,3 +174,10 @@ function sendChatMessageToServer(message, addToScreenChat) {
     sendDataToAPeer(dataChannel, wrapData(message, DataTransferType.CHAT_MESSAGE));
 }
 
+/**
+ * happens when the connection with server is disconnected
+ */
+function handleServerConnectionDisconnected() {
+    var disMessage = formatMessageColor("(Server disconnected)", "red");
+    addMessageToChatScreen(disMessage);
+}

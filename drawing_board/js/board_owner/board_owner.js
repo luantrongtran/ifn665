@@ -278,3 +278,24 @@ function forwardDataToAllUsers(data) {
         sendDataToAPeer(targetDataChannel, data);
     }
 }
+
+/**
+ * Handle the exception when there is an user disconnect unexpectedly
+ */
+function handleGuestConnectionDisconnectedUnexpectedly(datachannel) {
+    //remove disconnected user and his/her datachannel
+    var user = datachannel.name;
+    delete peerConnectionList[user];
+    delete dataChannelList[user];
+
+    //remove the username from usernameList
+    for(var i = 0; i < usernameList.length; i++) {
+        if (usernameList[i] == user) {
+            usernameList.splice(i, 1);
+        }
+    }
+
+    var disMsg = formatMessageColor("(" + datachannel.name + " has been disconnected)", "red");
+    broadcastChatMessage(disMsg);
+    addMessageToChatScreen(disMsg);
+}

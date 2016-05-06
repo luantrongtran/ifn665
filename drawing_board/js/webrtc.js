@@ -47,6 +47,25 @@ function hasUserMedia() {
  * @param data the data needs to be sent. for ex: {type: '', content: ''}
  */
 function sendDataToAPeer(datachannel, data) {
+
+    if(isBoardOwner) {
+        var connState = peerConnectionList[datachannel.name].iceConnectionState;
+        if(connState == "failed" || connState == "disconnected") {
+            handleGuestConnectionDisconnectedUnexpectedly(datachannel);
+            console.log("failed to send data to " + datachannel.name);
+
+            return;
+        }
+    } else {
+        var connState = peerConnection.iceConnectionState;
+        if(connState == "failed" || connState == "disconnected") {
+            console.log("failed to send data to server");
+            handleServerConnectionDisconnected();
+        }
+    }
     console.log("send data to " + datachannel.name + " " + data);
     datachannel.send(JSON.stringify(data));
+
+    //console.log(peerConnectionList[datachannel.name].iceConnectionState);//failed disconnected
+    //console.log(dataChannelList[datachannel.name].readyState);
 }
