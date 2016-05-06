@@ -176,15 +176,6 @@ function createDrawingToolbar() {
  */
 function createColorPicker() {
     var colors = ['#000000','#0433ff','#aa7942','#00fdff','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#CCCCCC','#ffffff'];
-    //var colorButtons = color_picker.querySelectorAll(".custom_color_btn");
-    //
-    //for(var i = 0; i < colorButtons.length; i++) {
-    //    colorButtons[i].style.backgroundColor = colors[i];
-    //
-    //    colorButtons[i].addEventListener("click", function () {
-    //        selectedColor = this.style.backgroundColor;
-    //    })
-    //}
 
     //the elements of custom_color_divs are the wrappers of the elements in custom_color_buttons
     var custom_color_divs = color_picker.querySelectorAll(".column");
@@ -238,12 +229,18 @@ function unselectDrawingTool() {
 }
 /** End page 3 **/
 
+/**
+ * this is invoked when the user successfully login with an unique id/username.
+ */
 function goToPage2() {
     page1.style.display = "none";
     page2.style.display = "block";
     page3.style.display = "none";
 }
 
+/**
+ * Users go to this page after creating a new board or joint an existing board.
+ */
 function goToPage3() {
     page1.style.display = "none";
     page2.style.display = "none";

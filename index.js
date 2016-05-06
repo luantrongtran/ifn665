@@ -4,6 +4,10 @@
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({port: 8888});
 
+/**
+ * value-pair map, the key is the username, the value is the connection of corresponding user.
+ * @type {{}}
+ */
 var users = {};
 
 /**
@@ -11,6 +15,16 @@ var users = {};
  * @type {{}}
  */
 var boards = {};
+
+/**
+ * indicates how often the server checks the connections to see if they are alive or not
+ */
+var heartBeatCheckingInterval = 5000;//5s
+
+setInterval(function(){
+    console.log("heart beat checking invoked");
+    checkHeartBeat();
+}, heartBeatCheckingInterval);
 
 wss.on('connection', function (connection) {
    console.log("User connected");
@@ -21,7 +35,7 @@ wss.on('connection', function (connection) {
         try {
             data = JSON.parse(message);
         } catch (expception) {
-            console.log("data is not in JSON");
+            console.log("data is not in JSON format");
         }
 
         switch (data.type) {
@@ -57,7 +71,6 @@ wss.on('connection', function (connection) {
             default :
         }
     });
-
 });
 
 function onCandidate(con, data) {
@@ -96,7 +109,6 @@ function onWebRTCAnswer(con, data) {
 function onOffer(con, data) {
     console.log(con.name + " (board's owner) sends webrtc offer to " + data.client_username + " (client)");
 
-
     var targetConnection = users[data.client_username];//the connection to the board's owner
 
     sendTo(targetConnection, {
@@ -123,7 +135,8 @@ function onDenyRequestReceived (connection, data) {
 }
 
 /**
- * Client sends request to join a board
+ * Client sends request to gain permission to join a board
+ * @param con the connection to the server
  * @param data contains
  *          type: "requestToJoinABoard"
  *          offer: the info, used for setting up peer-to-peer, of the sender
@@ -212,7 +225,7 @@ function handleCreateNewBoard(con, data) {
 }
 
 function sendTo(con, message) {
-    console.log("Reply: " , message);
+    console.log("send data to: " + con.name + ": " , message);
     con.send(JSON.stringify(message));
 }
 
@@ -227,4 +240,38 @@ function getBoardOwner(boardId) {
     } else {
         return "";
     }
+}
+
+/**
+ * Using heart beat to detect connection lost
+ */
+function checkHeartBeat() {
+    for (var username in users) {
+        sendHeartBeatToAnUser(username);
+    }
+}
+
+function sendHeartBeatToAnUser(username) {
+    console.log ("Send heart beat to " + username);
+
+    var targetConnection = users[username];
+
+    try {
+        sendTo(targetConnection, {
+            type: "heartBeat"
+        });
+    } catch (e) {
+        if (targetConnection.readyState == 2/*closeing*/ || targetConnection.readyState == 3/*closed*/) {
+            removeAnUser(username);
+        }
+    }
+}
+
+/**
+ * Remove a user's setting when he/she disconnects from the server.
+ */
+function removeAnUser(username) {
+    console.log ("remove user: " + username);
+    delete users[username];
+    delete boards[username];
 }

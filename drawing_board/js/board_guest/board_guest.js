@@ -168,7 +168,8 @@ function sendChatMessageToServer(message, addToScreenChat) {
     message = formatChatMessage(currentUsername, message);
 
     if(addToScreenChat) {
-        addMessageToChatScreen(message);//add the msg into the current chat screen of the current user
+        //add the msg into the current chat screen of the current user
+        addMessageToChatScreen(message);
     }
 
     sendDataToAPeer(dataChannel, wrapData(message, DataTransferType.CHAT_MESSAGE));
