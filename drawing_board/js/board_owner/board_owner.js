@@ -313,10 +313,12 @@ function handleGuestConnectionDisconnectedUnexpectedly(datachannel) {
  * @param username the username of the user receiving the sync data
  * @param syncCanvasData indicating if the canvas data should be synced
  * @param syncUserList indicating if the user list should be synced
+ * @param syncCanvasSize indicating if the canvas size should be synced
  */
-function sendSyncDataToAnUser(username, syncCanvasData, syncUserList) {
+function sendSyncDataToAnUser(username, syncCanvasData, syncUserList, syncCanvasSize) {
     syncCanvasData = (typeof syncCanvasData !== 'undefined') ? syncCanvasData : true;
     syncUserList = (typeof syncUserList !== 'undefined') ? syncUserList : true;
+    syncCanvasSize = (typeof syncCanvasSize !== 'undefined') ? syncCanvasSize : true;
 
     var syncData = {};
 
@@ -328,6 +330,13 @@ function sendSyncDataToAnUser(username, syncCanvasData, syncUserList) {
         syncData.userList = usernameList; //username of users using the board, not including board's owner
     }
 
+    if (syncCanvasSize) {
+        syncData.canvasSize = {
+            width: canvas_width,
+            height: canvas_height
+        };
+    }
+
     sendDataToAClient(username, wrapData(syncData, DataTransferType.SYNC));
 }
 
@@ -336,12 +345,13 @@ function sendSyncDataToAnUser(username, syncCanvasData, syncUserList) {
  * @param syncCanvasData
  * @param syncUserList
  */
-function sendSyncDataToAllUsers(syncCanvasData, syncUserList) {
+function sendSyncDataToAllUsers(syncCanvasData, syncUserList, syncCanvasSize) {
     syncCanvasData = (typeof syncCanvasData !== 'undefined') ? syncCanvasData : true;
     syncUserList = (typeof syncUserList !== 'undefined') ? syncUserList : true;
+    syncCanvasSize = (typeof syncCanvasSize !== 'undefined') ? syncCanvasSize : true;
 
     for (var i = 0; i < usernameList.length; i++) {
-        sendSyncDataToAnUser(usernameList[i],syncCanvasData, syncUserList);
+        sendSyncDataToAnUser(usernameList[i],syncCanvasData, syncUserList, syncCanvasSize);
     }
 }
 
@@ -356,5 +366,5 @@ function refreshConnectingUserList() {
     }
 
     //notify all users to sync the new list of username as well
-    sendSyncDataToAllUsers(false, true);
+    sendSyncDataToAllUsers(false, true, false);
 }

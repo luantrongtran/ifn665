@@ -62,34 +62,38 @@ function page2_displayErrorMsg(msg) {
     page2_err_msg.innerText = msg;
 }
 
-//testing
-//var page2_test = document.querySelector("#page2_test");
-//page2_test.addEventListener("click", function() {
-//    dataChannel.send("abc");
-//    //alert(dataChannel.readyState);
-//    //alert(peerConnection.iceConnectionState);
-//});
-
 /** End page 2 **/
 
 /** Page 3 **/
 var page3 = document.querySelector("#page3");
+var canvas_ele = document.querySelector("#canvas");
+var canvas_wrapper = document.querySelector("#canvas_wrapper");
+//Chat session
+var chat_box = document.querySelector("#chat_box");
 var chat_screen = document.querySelector("#chat_screen");
 var chat_input_message = document.querySelector("#chat_input_message");
 var chat_send_button = document.querySelector("#chat_send_button");
 
 //drawing toolbar
-var drawing_toolbar = document.querySelector("#toolbar");
-
+var toolbar = document.querySelector("#toolbar");
 var drawing_shape = document.querySelector("#drawing_shape");
 var toolbar_ellipse = document.querySelector("#toolbar_ellipse");
 var toolbar_rectangle = document.querySelector("#toolbar_rectangle");
 var toolbar_line = document.querySelector("#toolbar_line");
 
+////toolbar: Color picker
 var color_picker = document.querySelector("#color_picker");
+var color_palette = document.querySelector("#color_palette");
+
+var page3_selected_color = document.querySelector("#page3_selected_color");
 
 var edit_custom_colors = document.querySelector("#edit_custom_colors");
 var done_custom_colors = document.querySelector("#done_custom_colors");
+
+////toolbar: Update canvas section
+var page3_btn_update_canvas_size = document.querySelector("#page3_btn_update_canvas_size");
+var page3_canvas_width = document.querySelector("#page3_canvas_width");
+var page3_canvas_height = document.querySelector("#page3_canvas_height");
 
 //select color for chat msg
 var text_color_picker = document.querySelector("#text_color_picker");
@@ -177,15 +181,17 @@ function createDrawingToolbar() {
  * creates color picker
  */
 function createColorPicker() {
-    var colors = ['#000000','#0433ff','#aa7942','#00fdff','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#CCCCCC','#ffffff'];
+    updateSelectedColor(selectedColor);
+
+    var colors = ['#000000','#0433ff','#aa7942','#00FDFF','#00f900','#ff40ff','#ff9300','#942192','#ff2600','#fffb00','#CCCCCC','#ffffff'];
 
     //the elements of custom_color_divs are the wrappers of the elements in custom_color_buttons
-    var custom_color_divs = color_picker.querySelectorAll(".column");
+    var custom_color_divs = color_palette.querySelectorAll(".column");
     for(var i = 0; i < custom_color_divs.length; i++) {
         custom_color_divs[i].style.backgroundColor = colors[i];
 
         custom_color_divs[i].addEventListener("click", function() {
-            selectedColor = this.style.backgroundColor;
+            updateSelectedColor(this.style.backgroundColor);
         });
     }
 
@@ -256,20 +262,51 @@ function goToPage3() {
         chat_input_message.style.color = this.value.toString();
     });
 
+    page3_canvas_width.value = canvas_initial_width;
+    page3_canvas_height.value = canvas_initial_height;
+    page3_btn_update_canvas_size.addEventListener("click", function() {
+        var new_width = page3_canvas_width.value;
+        var new_height = page3_canvas_height.value;
+
+        var str = "";
+        if(new_width > canvas_max_width || new_width < canvas_min_width) {
+            str += "The canvas width should be in range of " + canvas_min_height + " to " + canvas_max_height + "\n";
+        }
+
+        if(new_height > canvas_max_height || new_height < canvas_min_height) {
+            str += "The canvas width should be in range of " + canvas_min_height + " to " + canvas_max_height;
+        }
+
+        if(str != "") {
+            alert(str);
+            return;
+        }
+
+        updateCanvasSize(new_width, new_height);
+    });
+
     if(isBoardOwner) {
         setupPage3ForOwner();
     } else {
         setupPage3ForGuest();
     }
-
-    page3.addEventListener("resize1", function() {
-        console.log("resizing");
-    });
 }
 
-function resize() {
-    console.log("abc");
-}
+/**
+ * assigned to body onresize event
+ */
+//function resize() {
+//    console.log("abc");
+//    updateCanvasSize();
+//}
+//
+//function updateCanvasSize() {
+//    var chatbox_rect = chat_box.getBoundingClientRect();
+//    var canvas_rect = canvas_ele.getBoundingClientRect();
+//
+//    var canvas_width = chatbox_rect.left - canvas_rect.left - 20;
+//    canvas.setWidth(canvas_width);
+//}
 
 /**
  * @deprecated

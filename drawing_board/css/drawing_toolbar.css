@@ -7,7 +7,7 @@
 }
 
 #drawing_shape {
-    width: 50%;
+    width: 150px;
 }
 
 .drawing_tool_btn {
@@ -45,16 +45,31 @@
 
 /*Color picker*/
 #color_picker {
-    width: 50%;
+    /*width: 50%;*/
     vertical-align: top;
 }
 
-#color_picker > .row > .column {
-    color: red;
-    border: 1px solid black;
+#color_palette {
+    vertical-align: top;
+    background-color: transparent;
+}
 
+#color_palette > .row > .column {
+    color: red;
     width: 20px;
     height: 20px;
+    margin: 2px;
+
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+#color_palette > .row > .column:nth-child(1) {
+    border-left: 1px solid black;
+}
+
+#color_palette > .row:nth-child(1) > .column {
+    border-top: 1px solid black;
 }
 
 .custom_color_btn {
@@ -67,4 +82,35 @@
 
     /*not display at beginning*/
     display: none;
+}
+
+#page3_selected_color_wrapper {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+    text-align: center;
+
+    border: 1px solid black;
+    border-left: 0;
+}
+#page3_selected_color {
+    margin: auto;
+    border: 1px solid black;
+    width: 20px;
+    height: 20px;
+
+    background-color: green;
+}
+
+/*update board size*/
+#update_board_size {
+    vertical-align: top;
+}
+
+#update_board_size .column {
+    padding-right: 12px;
+}
+
+#page3_btn_update_canvas_size {
+    margin-top: 3px;
 }

@@ -165,6 +165,10 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
         if (syncData.userList) {
             refreshUserListFromServer(syncData.userList);
         }
+
+        if (syncData.canvasSize) {
+            updateCanvasSize(syncData.canvasSize.width, syncData.canvasSize.height);
+        }
     }
 }
 

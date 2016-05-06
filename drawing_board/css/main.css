@@ -41,9 +41,15 @@ body {
 }
 
 #canvas {
-    border: 1px solid black;
+    float: left;
+    border: 5px solid black;
     width: 100%;
     height: 500px;
+}
+
+#canvas_wrapper {
+    overflow: auto;
+    max-height: 500px;
 }
 
 /*splitter*/
@@ -68,6 +74,7 @@ body {
     overflow-y: scroll;
     margin-bottom: 5px;
     padding: 3px;
+    background-color: white;
 }
 
 #chat_message {
@@ -83,6 +90,8 @@ body {
     overflow-y: scroll;
     margin-bottom: 5px;
     padding: 3px;
+
+    background-color: white;
 }
 
 .error-msg {

@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="css/div_table.css">
 
 </head>
-<body onresize="resize()">
+<body>
 
     <!--Page #1-->
     <div id="page1">
@@ -37,7 +37,9 @@
     <div id="page3">
 
         <div id = "drawing_section">
-            <canvas id="canvas"></canvas>
+            <div id="canvas_wrapper">
+                <canvas id="canvas"></canvas>
+            </div>
             <div id="toolbar" class="table">
                 <div id="drawing_shape" class="column">
                     <button class="drawing_tool_btn" id="toolbar_ellipse"></button>
@@ -46,49 +48,82 @@
                 </div>
 
                 <div class="column" id="color_picker">
+                    <div class="table">
+                        <div class="row">
+                            <div class="column" id="color_palette" style="background-color: transparent">
+                                <div class="row">
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                    <div class="column">
+                                        <input class="custom_color_btn" type="color">
+                                    </div>
+                                </div>
 
-                    <div class="row">
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
-                        </div>
-                        <div class="column">
-                            <input class="custom_color_btn" type="color">
+                            </div>
+                            <div class="column" id="page3_selected_color_wrapper">
+                                <div id="page3_selected_color">
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button id="edit_custom_colors" style="margin-top: 5px;">Edit color palette</button>
                     <button id="done_custom_colors" style="display: none;margin-top: 5px;">done</button>
+                </div>
+
+                <div class="column" id="update_board_size">
+                    <div class="table">
+                        <div class="row">
+                            <div class="column">
+                                <label for="page3_canvas_width">Width</label>
+                            </div>
+                            <div class="column">
+                                <input min="500" max="800" id="page3_canvas_width" type="number">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <label for="page3_canvas_height">Height</label>
+                            </div>
+                            <div class="column">
+                                <input min="500" max="800" id="page3_canvas_height" type="number">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="page3_btn_update_canvas_size">Update board size</button>
                 </div>
             </div>
         </div>

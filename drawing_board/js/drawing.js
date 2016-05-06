@@ -26,6 +26,17 @@ var TOOL = {
  */
 var canvas;
 
+var canvas_initial_width = 800;
+var canvas_initial_height = 400;
+
+var canvas_width = canvas_initial_width;
+var canvas_height = canvas_initial_height;
+
+var canvas_min_width = 500;
+var canvas_max_width = 1000;
+var canvas_min_height = 400;
+var canvas_max_height = 600;
+
 /**
  * The shape that the user is selecting in the tool bar.
  * Default is no tool selected
@@ -76,7 +87,8 @@ function initCanvas() {
     console.log("initializing canvas");
 
     //var canvasElement = document.querySelector("#canvas");
-    canvas = new fabric.Canvas("canvas",{selection: false, height: 500, width: 500, backgroundColor: "#ffffff"});
+    canvas = new fabric.Canvas("canvas",{selection: false, height: canvas_initial_height, width: canvas_initial_width,
+        backgroundColor: "#ffffff"});
 
     //canvas.isDrawingMode = true;
 
@@ -85,6 +97,8 @@ function initCanvas() {
     canvas.on("mouse:up", onMouseUpCanvas);
 
     canvas.on("mouse:move", onMouseMoveCanvas);
+
+    updateCanvasSize(canvas_initial_width, canvas_initial_height);
 }
 
 /**
@@ -359,4 +373,41 @@ function castToFabricObject(obj) {
     } else {
         return null;
     }
+}
+
+/**
+ * Update the size of the canvas
+ * @param width number
+ * @param height number
+ */
+function updateCanvasSize(width, height) {
+    canvas_width = width;
+    canvas_height = height;
+
+    canvas.setWidth(canvas_width);
+    canvas.setHeight(canvas_height);
+
+    canvas_wrapper.style.width = width;
+    //
+    //var canvas_wrapper_rect = canvas_wrapper.getBoundingClientRect();
+    //if(canvas_wrapper.style.height < canvas_max_height) {
+    //    canvas_wrapper.style.height = width + 10;
+    //}
+
+    page3_canvas_width.value = width;
+    page3_canvas_height.value = height;
+
+    if (isBoardOwner) {
+        //if the board's owner resizes the board, then notify other users to update their board size
+        sendSyncDataToAllUsers(false, false, true);
+    }
+}
+
+/**
+ * Update the selected color including displaying the selected color on UI
+ * @param newColor
+ */
+function updateSelectedColor(newColor) {
+    selectedColor = newColor;
+    page3_selected_color.style.backgroundColor = selectedColor;
 }
