@@ -137,17 +137,18 @@ function preparePeerConnectionForANewClient(clientUsername) {
             //Send welcome message to the new user
             sendChatMessageToAClient(clientUsername, "Welcome on board, " + clientUsername, false);
 
-            //Add notification message on chat screen
-            var connected = formatMessageColor("(" + clientUsername + " connected)", 'green');
-            addMessageToChatScreen(connected);
+            //Synchronising data with the new user
+            sendSyncDataToAnUser(clientUsername);
 
-            //Synchronising the new user by sending canvas data including drawing objects have been drawn
-            sendSynchronisedCanvasDataToAnUser(clientUsername);
+            //refresh the UI which is a div containing the username of connecting users
+            refreshConnectingUserList();
         };
 
         newDataChannel.onclose = function () {
             console.log("Data channel closed");
             handleGuestConnectionDisconnectedUnexpectedly(this);
+
+            refreshConnectingUserList();
         };
         newDataChannel.onerror = function() {
             console.log("Data Channel error");
@@ -305,4 +306,55 @@ function handleGuestConnectionDisconnectedUnexpectedly(datachannel) {
     var disMsg = formatMessageColor("(" + datachannel.name + " has been disconnected)", "red");
     broadcastChatMessage(disMsg);
     addMessageToChatScreen(disMsg);
+}
+
+/**
+ * Synchronising data with the new user
+ * @param username the username of the user receiving the sync data
+ * @param syncCanvasData indicating if the canvas data should be synced
+ * @param syncUserList indicating if the user list should be synced
+ */
+function sendSyncDataToAnUser(username, syncCanvasData, syncUserList) {
+    syncCanvasData = (typeof syncCanvasData !== 'undefined') ? syncCanvasData : true;
+    syncUserList = (typeof syncUserList !== 'undefined') ? syncUserList : true;
+
+    var syncData = {};
+
+    if(syncCanvasData) {
+        syncData.canvasData = canvas.getObjects();
+    }
+
+    if(syncUserList) {
+        syncData.userList = usernameList; //username of users using the board, not including board's owner
+    }
+
+    sendDataToAClient(username, wrapData(syncData, DataTransferType.SYNC));
+}
+
+/**
+ * Synchronising data with all users
+ * @param syncCanvasData
+ * @param syncUserList
+ */
+function sendSyncDataToAllUsers(syncCanvasData, syncUserList) {
+    syncCanvasData = (typeof syncCanvasData !== 'undefined') ? syncCanvasData : true;
+    syncUserList = (typeof syncUserList !== 'undefined') ? syncUserList : true;
+
+    for (var i = 0; i < usernameList.length; i++) {
+        sendSyncDataToAnUser(usernameList[i],syncCanvasData, syncUserList);
+    }
+}
+
+/**
+ * Refresh the list of users connecting to the board
+ */
+function refreshConnectingUserList() {
+    page3_user_list.innerHTML = "<span>" + currentUsername + "</span><br>";
+
+    for(var i = 0; i < usernameList.length; i++) {
+        page3_user_list.innerHTML += "<span>" + usernameList[i] + "</span><br>";
+    }
+
+    //notify all users to sync the new list of username as well
+    sendSyncDataToAllUsers(false, true);
 }

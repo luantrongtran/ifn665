@@ -6,6 +6,12 @@
 var peerConnection, dataChannel;
 
 /**
+ * Contains users connecting to the using board. This doesn't include the board's owner
+ * @type {Array}
+ */
+var connectingUsers = [];
+
+/**
  * Sends the request to join a created board
  */
 function sendRequestToJoinABoard() {
@@ -122,7 +128,8 @@ function preparePeerConnection() {
 
 function onDataChannelWithBoardOwnerOpenedCallBack() {
     console.log("Data channel opened");
-    sendChatMessageToServer("Hi", false);
+    var connectedMsg = formatMessageColor("(" + currentUsername + " has been connected)", 'green');
+    sendChatMessageToServer(connectedMsg, false, false);
 }
 
 /**
@@ -146,9 +153,17 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
             //console.log("Finish drawing : " , data.sender);
             delete arrDrawingObject[data.sender];
-        } else if (canvasData.command = DrawingCommands.SYNC) {
-            var syncData = canvasData.syncData;
-            handleSyncDataFromServer(syncData);
+        }
+    } else if (data.type == DataTransferType.SYNC) {
+        var syncData = data.content;
+
+        if(syncData.canvasData) {
+            //Handle canvas data
+            syncCanvasDataFromServer(syncData.canvasData);
+        }
+
+        if (syncData.userList) {
+            refreshUserListFromServer(syncData.userList);
         }
     }
 }
@@ -163,13 +178,18 @@ function onDataChannelWithBoardOwnerClosedCallBack() {
  * @param message a string
  * @param addToScreenChat a boolean indicating if the message should be added into the screen chat. Default value is
  * true which means the message will be added into the chat screen.
+ * @param wrapMessageWithUsername indicates if the message should be wrap with the sender's username. For example:
+ * "sender_username: hello world!" if true or "hello world!" if false
  */
-function sendChatMessageToServer(message, addToScreenChat) {
+function sendChatMessageToServer(message, addToScreenChat, wrapMessageWithUsername) {
     addToScreenChat = (typeof addToScreenChat !== 'undefined') ? addToScreenChat : true;
-
+    wrapMessageWithUsername = (typeof wrapMessageWithUsername !== 'undefined') ? wrapMessageWithUsername : true;
 
     console.log("send chat message to server: ", message);
-    message = formatChatMessage(currentUsername, message);
+
+    if(wrapMessageWithUsername) {
+        message = formatChatMessage(currentUsername, message);
+    }
 
     if(addToScreenChat) {
         //add the msg into the current chat screen of the current user
@@ -192,7 +212,7 @@ function handleServerConnectionDisconnected() {
 /**
  * Handle syn data sent from server. The data contains drawing objects have been added since the board was crated.
  */
-function handleSyncDataFromServer (syncData) {
+function syncCanvasDataFromServer (syncData) {
     console.log("Synchronising  canvas data: " + syncData.length);
     for (var i = 0; i < syncData.length; i++) {
         var drawnObj = syncData[i];
@@ -201,5 +221,17 @@ function handleSyncDataFromServer (syncData) {
         console.log(convertedObj);
         console.log(convertedObj.selectable);
         canvas.add(convertedObj);
+    }
+}
+
+/**
+ * Refresh the list of users connecting to the using board
+ * @param newUserList an array containing the username of the users connecting to the using board
+ */
+function refreshUserListFromServer(newUserList) {
+    page3_user_list.innerHTML = "<span>" + boardOwnerUsername + "</span><br>";
+
+    for(var i = 0; i < newUserList.length; i++) {
+        page3_user_list.innerHTML += "<span>" + newUserList[i] + "</span><br>";
     }
 }

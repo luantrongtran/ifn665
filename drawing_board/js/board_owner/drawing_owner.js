@@ -55,18 +55,3 @@ function onMouseMoveExtraEventForOwner() {
 function onMouseUpExtraEventForOwner() {
     finishDrawing_Owner();
 }
-
-/**
- * Send all drawn objects to a new user
- * @param username of the new user
- */
-function sendSynchronisedCanvasDataToAnUser(username) {
-    var drawnObjects = canvas.getObjects();
-
-    var syncData = {
-        command: DrawingCommands.SYNC,
-        syncData: drawnObjects
-    };
-
-    sendCanvasDataToAClient(username, syncData);
-}

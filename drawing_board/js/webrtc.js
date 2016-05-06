@@ -13,7 +13,8 @@ var WebRTCDataChannelConfiguration = {
 
 var DataTransferType = {
     CHAT_MESSAGE: "chat_message",
-    CANVAS_DATA: "canvas_data"
+    CANVAS_DATA: "canvas_data",
+    SYNC: "sync_all_data_with_a_the_user" //except for canvas data
 };
 
 var DrawingCommands = {

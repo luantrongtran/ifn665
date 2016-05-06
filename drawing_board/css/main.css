@@ -20,6 +20,8 @@ body {
     text-align: center;
 }
 
+
+/*page 3*/
 #page3 {
     display: none;
     height: 100%;
@@ -60,17 +62,27 @@ body {
 
 #chat_screen {
     width: 100%;
-    /*height: 400px;*/
     height: 200px;
     max-height: 500px;
     border: 1px solid #000000;
     overflow-y: scroll;
     margin-bottom: 5px;
+    padding: 3px;
 }
 
 #chat_message {
     width: 100%;
     height: 20px;
+}
+
+#page3_userList {
+    width: 100%;
+    height: 200px;
+    max-height: 500px;
+    border: 1px solid #000000;
+    overflow-y: scroll;
+    margin-bottom: 5px;
+    padding: 3px;
 }
 
 .error-msg {

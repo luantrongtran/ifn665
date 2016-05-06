@@ -94,6 +94,8 @@ var done_custom_colors = document.querySelector("#done_custom_colors");
 //select color for chat msg
 var text_color_picker = document.querySelector("#text_color_picker");
 
+var page3_user_list = document.querySelector("#page3_userList");
+
 function addMessageToChatScreen(msg) {
     //chat_screen.value += msg + "\n";
     chat_screen.innerHTML += msg + "<br>";
