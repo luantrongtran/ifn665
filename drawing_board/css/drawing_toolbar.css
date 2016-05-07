@@ -23,7 +23,7 @@
     background-color: #F2F2F2;
 }
 
-.drawing_tool_btn.clicked {
+.drawing_tool_btn.selected {
     background-color: #CCCCCC;
 }
 
@@ -41,6 +41,10 @@
 
 #toolbar_line {
     background-image: url("../images/line_tool.png");
+}
+
+#toolbar_text {
+    background-image: url("../images/text_tool.png");
 }
 
 /*Color picker*/
@@ -113,4 +117,44 @@
 
 #page3_btn_update_canvas_size {
     margin-top: 3px;
+}
+
+/*font settings*/
+#page3_canvas_font_settings {
+    vertical-align: top;
+}
+
+#page3_canvas_text_size {
+    width: 40px;
+}
+
+.font_btn {
+    background-size: cover;
+    width: 20px;
+    height: 20px;
+
+    padding: 2px;
+    background-color: transparent;
+}
+
+.font_btn.selected {
+    background-color: #CCCCCC;
+}
+
+.font_btn:focus {
+    outline: none;
+}
+
+#page3_font_bold {
+    background-image: url("../images/bold_font.png");
+}
+
+#page3_font_italic {
+    background-image: url("../images/italic_font.png");
+    margin-left: 5px;
+}
+
+#page3_font_underline {
+    margin-left: 5px;
+    background-image: url("../images/underline_font.png");
 }

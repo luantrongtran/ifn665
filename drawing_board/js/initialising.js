@@ -80,6 +80,7 @@ var drawing_shape = document.querySelector("#drawing_shape");
 var toolbar_ellipse = document.querySelector("#toolbar_ellipse");
 var toolbar_rectangle = document.querySelector("#toolbar_rectangle");
 var toolbar_line = document.querySelector("#toolbar_line");
+var toolbar_text = document.querySelector("#toolbar_text");
 
 ////toolbar: Color picker
 var color_picker = document.querySelector("#color_picker");
@@ -89,6 +90,14 @@ var page3_selected_color = document.querySelector("#page3_selected_color");
 
 var edit_custom_colors = document.querySelector("#edit_custom_colors");
 var done_custom_colors = document.querySelector("#done_custom_colors");
+
+////toolbar: font settings
+var page3_canvas_text_size = document.querySelector("#page3_canvas_text_size");
+var page3_canvas_font_family = document.querySelector("#page3_canvas_font_family");
+
+var page3_font_bold = document.querySelector("#page3_font_bold");
+var page3_font_italic = document.querySelector("#page3_font_italic");
+var page3_font_underline = document.querySelector("#page3_font_underline");
 
 ////toolbar: Update canvas section
 var page3_btn_update_canvas_size = document.querySelector("#page3_btn_update_canvas_size");
@@ -114,8 +123,6 @@ function addMessageToChatScreen(msg) {
  * Setup page 3 for the board's owner
  */
 function setupPage3ForOwner() {
-    createDrawingToolbar();
-
     //setup chat box
     chat_send_button.addEventListener("click", function() {
         var msg = chat_input_message.value.trim();
@@ -149,36 +156,48 @@ function setupPage3ForGuest() {
     });
 }
 
+function initToolbar() {
+    createColorPicker();
+    createDrawingToolbar();
+    createFontSettingsTool();
+    createUpdateBoardSizeTool();
+}
 /**
- * setup drawing tool
+ * setup drawing tool including tools drawing rectangles, circles, lines and text
  */
 function createDrawingToolbar() {
-    createColorPicker();
 
     toolbar_ellipse.addEventListener("click", function() {
         unselectDrawingTool();
-        $(this).addClass("clicked");
+        $(this).addClass("selected");
 
         selectedTool = TOOL.ELLIPSE;
     });
 
     toolbar_rectangle.addEventListener("click", function() {
         unselectDrawingTool();
-        $(this).addClass("clicked");
+        $(this).addClass("selected");
 
         selectedTool = TOOL.RECTANGLE;
     });
 
     toolbar_line.addEventListener("click", function(){
         unselectDrawingTool();
-        $(this).addClass("clicked");
+        $(this).addClass("selected");
 
         selectedTool = TOOL.LINE;
+    });
+
+    toolbar_text.addEventListener("click", function() {
+        unselectDrawingTool();
+        $(this).addClass("selected");
+
+        selectedTool = TOOL.TEXT;
     });
 }
 
 /**
- * creates color picker
+ * creates color picker within drawing toolbar
  */
 function createColorPicker() {
     updateSelectedColor(selectedColor);
@@ -227,41 +246,49 @@ function createColorPicker() {
 }
 
 /**
- * unselect the current drawing tool. This affects user interface only
+ * Setup the tool for font settings
  */
-function unselectDrawingTool() {
-    var buttons = drawing_shape.querySelectorAll(".drawing_tool_btn");
-    for (var i = 0; i < buttons.length; i++) {
-        $(buttons[i]).removeClass("clicked");
+function createFontSettingsTool() {
+
+    //Setup font families
+    var font_families = ["Arial", "Arial Black", "Comic Sans MS", "Courier New", "Lucida Sans Unicode", "Tahoma",
+        "Times New Roman"];
+
+    page3_canvas_font_family.innerHTML = "";
+    for(var i = 0; i < font_families.length; i++) {
+        var opt = "<option value='" + font_families[i] + "'>" + font_families[i] + "</option>";
+        page3_canvas_font_family.innerHTML += opt;
     }
-}
-/** End page 3 **/
 
-/**
- * this is invoked when the user successfully login with an unique id/username.
- */
-function goToPage2() {
-    page1.style.display = "none";
-    page2.style.display = "block";
-    page3.style.display = "none";
-}
-
-/**
- * Users go to this page after creating a new board or joint an existing board.
- */
-function goToPage3() {
-    page1.style.display = "none";
-    page2.style.display = "none";
-    page3.style.display = "block";
-
-    initCanvas();
-
-    //setup color picker for chat text
-    text_color_picker.addEventListener("change", function () {
-        selectedTextColor = this.value.toString();
-        chat_input_message.style.color = this.value.toString();
+    page3_canvas_font_family.addEventListener("change", function() {
+        canvas_font_family = this.value;
     });
 
+    page3_canvas_text_size.addEventListener("change", function () {
+        canvas_font_size = this.value;
+    });
+
+    page3_font_bold.addEventListener("click", function () {
+        toggleBoldButton();
+    });
+
+    page3_font_italic.addEventListener("click", function() {
+        toggleItalicButton();
+    });
+
+    page3_font_underline.addEventListener("click", function() {
+        toggleUnderlineButton();
+    });
+
+    //set default values for font size and font family
+    page3_canvas_text_size.value = canvas_font_size;
+    page3_canvas_font_family.value = canvas_font_family;
+}
+
+/**
+ * create the tool for updating the size of the board
+ */
+function createUpdateBoardSizeTool () {
     page3_canvas_width.value = canvas_initial_width;
     page3_canvas_height.value = canvas_initial_height;
     page3_btn_update_canvas_size.addEventListener("click", function() {
@@ -284,6 +311,75 @@ function goToPage3() {
 
         updateCanvasSize(new_width, new_height);
     });
+}
+
+/**
+ * unselect the current drawing tool. This affects user interface only
+ */
+function unselectDrawingTool() {
+    var buttons = drawing_shape.querySelectorAll(".drawing_tool_btn");
+    for (var i = 0; i < buttons.length; i++) {
+        $(buttons[i]).removeClass("selected");
+    }
+}
+
+function toggleBoldButton () {
+    if(canvas_font_weight == FONT_WEIGHT.BOLD) {
+        canvas_font_weight = FONT_WEIGHT.NORMAL;
+        $(page3_font_bold).removeClass("selected");
+    } else if (canvas_font_weight == FONT_WEIGHT.NORMAL) {
+        canvas_font_weight = FONT_WEIGHT.BOLD;
+        $(page3_font_bold).addClass("selected");
+    }
+}
+
+function toggleItalicButton() {
+    if(canvas_font_style == FONT_STYLE.NORMAL) {
+        canvas_font_style = FONT_STYLE.ITALIC;
+        $(page3_font_italic).addClass("selected");
+    } else if (canvas_font_style == FONT_STYLE.ITALIC) {
+        canvas_font_style = FONT_STYLE.NORMAL;
+        $(page3_font_italic).removeClass("selected");
+    }
+}
+
+function toggleUnderlineButton() {
+    if(canvas_text_decoration == TEXT_DECORATION.NORMAL) {
+        canvas_text_decoration = TEXT_DECORATION.UNDERLINE;
+        $(page3_font_underline).addClass("selected");
+    } else if (canvas_text_decoration == TEXT_DECORATION.UNDERLINE) {
+        canvas_text_decoration = TEXT_DECORATION.NORMAL;
+        $(page3_font_underline).removeClass("selected");
+    }
+}
+
+/** End page 3 **/
+
+/**
+ * this is invoked when the user successfully login with an unique id/username.
+ */
+function goToPage2() {
+    page1.style.display = "none";
+    page2.style.display = "block";
+    page3.style.display = "none";
+}
+
+/**
+ * Users go to this page after creating a new board or joint an existing board.
+ */
+function goToPage3() {
+    page1.style.display = "none";
+    page2.style.display = "none";
+    page3.style.display = "block";
+
+    initToolbar();
+    initCanvas();
+
+    //setup color picker for chat text
+    text_color_picker.addEventListener("change", function () {
+        selectedTextColor = this.value.toString();
+        chat_input_message.style.color = this.value.toString();
+    });
 
     if(isBoardOwner) {
         setupPage3ForOwner();
@@ -291,39 +387,3 @@ function goToPage3() {
         setupPage3ForGuest();
     }
 }
-
-/**
- * assigned to body onresize event
- */
-//function resize() {
-//    console.log("abc");
-//    updateCanvasSize();
-//}
-//
-//function updateCanvasSize() {
-//    var chatbox_rect = chat_box.getBoundingClientRect();
-//    var canvas_rect = canvas_ele.getBoundingClientRect();
-//
-//    var canvas_width = chatbox_rect.left - canvas_rect.left - 20;
-//    canvas.setWidth(canvas_width);
-//}
-
-/**
- * @deprecated
- * Receives the response of the board's owner to whom you want to connect
- * @param data
- * if data.success == true. It means the board's owner accepted the request, vice versa
- */
-//function onReceiveAnswer(data) {
-//    var boardOwner = data.board_owner;
-//    if(!data.success) {
-//        //if the owner denied the request
-//        alert(boardOwner + " doesn't accept your request");
-//        console.log("request to join the board denied");
-//        return;
-//    }
-//
-//    //if the owner accepted the request
-//    console.log("request to join the board accepted");
-//    //boardOwnerUsername = boardOwner;
-//}

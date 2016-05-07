@@ -45,6 +45,7 @@
                     <button class="drawing_tool_btn" id="toolbar_ellipse"></button>
                     <button class="drawing_tool_btn" id="toolbar_rectangle"></button>
                     <button class="drawing_tool_btn" id="toolbar_line"></button>
+                    <button class="drawing_tool_btn" id="toolbar_text"></button>
                 </div>
 
                 <div class="column" id="color_picker">
@@ -95,13 +96,39 @@
                             </div>
                             <div class="column" id="page3_selected_color_wrapper">
                                 <div id="page3_selected_color">
-
                                 </div>
                             </div>
                         </div>
                     </div>
                     <button id="edit_custom_colors" style="margin-top: 5px;">Edit color palette</button>
                     <button id="done_custom_colors" style="display: none;margin-top: 5px;">done</button>
+                </div>
+
+                <div class="column" id="page3_canvas_font_settings">
+                    <div class="table">
+                        <div class="row">
+                            <button class="font_btn" id="page3_font_bold"></button>
+                            <button class="font_btn" id="page3_font_italic"></button>
+                            <button class="font_btn" id="page3_font_underline"></button>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <label for="page3_canvas_text_size">Font size</label>
+                            </div>
+                            <div class="column">
+                                <input id="page3_canvas_text_size" type="number" value="20">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <label for="page3_canvas_font_family">Font family</label>
+                            </div>
+                            <div class="column">
+                                <select type="text" id="page3_canvas_font_family">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="column" id="update_board_size">

@@ -53,5 +53,7 @@ function onMouseMoveExtraEventForOwner() {
 }
 
 function onMouseUpExtraEventForOwner() {
-    finishDrawing_Owner();
+    if(selectedTool != TOOL.NONE) {
+        finishDrawing_Owner();
+    }
 }

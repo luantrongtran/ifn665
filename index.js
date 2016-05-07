@@ -17,6 +17,12 @@ var users = {};
 var boards = {};
 
 /**
+ * value-pari map, the key is the username of board's owners, value is the board id owner by the corresponding owner
+ * @type {{}}
+ */
+var board_owners = {};
+
+/**
  * indicates how often the server checks the connections to see if they are alive or not
  */
 var heartBeatCheckingInterval = 5000;//5s
@@ -216,6 +222,7 @@ function handleCreateNewBoard(con, data) {
     } else {
         //IF the board id has not been used
         boards[data.board_id] = data.username;
+        board_owners[data.username] = data.board_id;
 
         sendTo(con, {
             type: "createNewBoard",
@@ -277,5 +284,8 @@ function sendHeartBeatToAnUser(username) {
 function removeAnUser(username) {
     console.log ("remove user: " + username);
     delete users[username];
-    delete boards[username];
+
+    //Delete the board if the user is a board's owner
+    delete boards[board_owners[username]];
+    delete board_owners[username];
 }

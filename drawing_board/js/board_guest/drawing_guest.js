@@ -45,5 +45,7 @@ function onMouseMoveExtraEventForGuest() {
  * This function will be added into the function of onMouseUpCanvas in initialising.js
  */
 function onMouseUpExtraEventForGuest() {
-    finishDrawing_Guest();
+    if(selectedTool != TOOL.NONE) {
+        finishDrawing_Guest();
+    }
 }

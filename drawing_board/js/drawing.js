@@ -17,11 +17,27 @@ var isDebugged = false;
 //variables used for transferring data between 2 canvases
 
 var TOOL = {
+    //The value should be the type in fabricjs
     NONE: "none",
     ELLIPSE: "ellipse",
     RECTANGLE: "rect",
     LINE: "line",
-    TEXT: "text"
+    TEXT: "i-text"
+};
+
+var FONT_WEIGHT = {
+    NORMAL: "normal",
+    BOLD: "bold"
+};
+
+var FONT_STYLE = {
+    ITALIC: "italic",
+    NORMAL: "normal"
+};
+
+var TEXT_DECORATION = {
+    UNDERLINE: "underline",
+    NORMAL: "normal"
 };
 
 /**
@@ -41,6 +57,18 @@ var canvas_min_width = 500;
 var canvas_max_width = 1000;
 var canvas_min_height = 400;
 var canvas_max_height = 600;
+
+var canvas_font_size = 20;
+var canvas_font_family = 'Arial';
+var canvas_font_style = "normal"; //normal or italic
+var canvas_font_weight = "normal"; //normal or bold
+var canvas_text_decoration = "normal"; //normal or underline
+
+/**
+ *
+ * @type {string}
+ */
+var canvas_text_color = '#000000';
 
 /**
  * The shape that the user is selecting in the tool bar.
@@ -137,7 +165,9 @@ function onMouseMoveCanvas(o) {
     if (isMouseDown) {
         var pointer = canvas.getPointer(o.e);
 
-        if(selectedTool == TOOL.RECTANGLE) {
+        if (selectedTool == TOOL.NONE) {
+            return;
+        } else if(selectedTool == TOOL.RECTANGLE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
             }
@@ -166,6 +196,8 @@ function onMouseMoveCanvas(o) {
                 x2: pointer.x,
                 y2: pointer.y
             });
+        } else if (selectedTool == TOOL.TEXT) {
+            return;
         }
 
         if(isBoardOwner) {
@@ -176,7 +208,7 @@ function onMouseMoveCanvas(o) {
     }
 
     canvas.renderAll();
-    
+
     if(isDebugged == true) {
         dbDrawingObjInfo.innerHTML = JSON.stringify(drawingObject);
 
@@ -232,7 +264,49 @@ function onMouseDownCanvas(o) {
             strokeWidth: selectedStrokeWidth
         });
     } else if (selectedTool == TOOL.TEXT) {
+        drawingObject = new fabric.IText("", {
+            left: mouseDownPosition.x,
+            top: mouseDownPosition.y,
+            fontFamily: canvas_font_family,
+            fontSize: canvas_font_size,
+            fill: canvas_text_color,
+            fontStyle: canvas_font_style,
+            textDecoration: canvas_text_decoration,
+            fontWeight: canvas_font_weight
+        });
 
+        addObjectIntoCanvas(drawingObject);
+
+        //not allowing users to edit after exiting edit mode
+        drawingObject.on("editing:exited", function() {
+            drawingObject.selectable = false;
+
+            if(isBoardOwner) {
+                finishDrawing_Owner();
+            } else {
+                finishDrawing_Guest()
+            }
+        });
+
+
+        canvas.on("text:changed", function () {
+            if(isBoardOwner) {
+                sendDrawingObjectToOtherPeers(drawingObject);
+            } else {
+                if(drawingObject) {
+                    sendDrawingObjectToServer(drawingObject);
+                }
+            }
+        });
+
+        //enter edit mode after IText had been created
+        canvas.setActiveObject(drawingObject);
+        drawingObject.enterEditing();
+
+        selectedTool = TOOL.NONE;
+        unselectDrawingTool();
+
+        return;
     }
 
     addObjectIntoCanvas(drawingObject);
@@ -260,6 +334,8 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             updateDrawingEllipseOfAPeer(oldDrawingObject, newDrawingObject);
         } else if (newDrawingObject.type == TOOL.LINE) {
             updateDrawingLineOfAPeer(oldDrawingObject, newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.TEXT) {
+            updateDrawingTextOfAPeer(oldDrawingObject, newDrawingObject);
         }
 
         //canvas.renderAll();
@@ -317,6 +393,16 @@ function updateDrawingLineOfAPeer(oldLineObj, newLineObj) {
 }
 
 /**
+ * This function is used to update the drawing object if the object is a i-text
+ * @param oldTextObj
+ * @param newTextObj
+ */
+function updateDrawingTextOfAPeer(oldTextObj, newTextObj) {
+    console.log("update drawing text");
+    oldTextObj.setText(newTextObj.text);
+}
+
+/**
  * This variable is used to avoid calling the canvas.renderAll() continuously
  * @type {boolean}
  */
@@ -367,6 +453,17 @@ function castToFabricObject(obj) {
         } else if (obj.type == TOOL.LINE) {
             returnObj = new fabric.Line([obj.left, obj.top,
                 obj.left + obj.width, obj.top + obj.height], obj);
+        } else if (obj.type == TOOL.TEXT) {
+            returnObj = new fabric.IText("", {
+                left: obj.left,
+                top: obj.top,
+                fontFamily: obj.fontFamily,
+                fontSize: obj.fontSize,
+                fill: obj.fill,
+                fontStyle: obj.fontStyle,
+                textDecoration: obj.textDecoration,
+                fontWeight: obj.fontWeight
+            });
         } else {
             return null;
         }
@@ -418,4 +515,7 @@ function updateCanvasSize(width, height) {
 function updateSelectedColor(newColor) {
     selectedColor = newColor;
     page3_selected_color.style.backgroundColor = selectedColor;
+
+    //For the current implementation text color has the same value with the drawing color
+    canvas_text_color = newColor;
 }
