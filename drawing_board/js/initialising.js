@@ -31,6 +31,10 @@ var page1_username = document.querySelector("#page1_username");
 page1_btnNext.addEventListener("click", function() {
     login();
 });
+page1_username.addEventListener("keypress", function (event) {
+    if(event.keyCode == 13)
+        login();
+});
 /** End page 1 **/
 
 /**page 2**/
