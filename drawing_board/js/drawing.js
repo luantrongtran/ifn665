@@ -1,5 +1,8 @@
 /**
  * Created by lua on 15/04/2016.
+ * This file is used for both board's owners and guest users. However, board's owners and guest users may have
+ * different processes. These processes are implemented for board's owner and guest users
+ * in drawing_guest.js and drawing_owner.js, in that order.
  */
 
 //Debug variables
@@ -25,6 +28,8 @@ var TOOL = {
  * The canvas
  */
 var canvas;
+
+var canvas_background_color = "#ffffff";
 
 var canvas_initial_width = 800;
 var canvas_initial_height = 400;
@@ -87,8 +92,12 @@ function initCanvas() {
     console.log("initializing canvas");
 
     //var canvasElement = document.querySelector("#canvas");
-    canvas = new fabric.Canvas("canvas",{selection: false, height: canvas_initial_height, width: canvas_initial_width,
-        backgroundColor: "#ffffff"});
+    canvas = new fabric.Canvas("canvas",{
+        selection: false,
+        height: canvas_initial_height,
+        width: canvas_initial_width,
+        backgroundColor: canvas_background_color
+    });
 
     //canvas.isDrawingMode = true;
 
@@ -167,8 +176,7 @@ function onMouseMoveCanvas(o) {
     }
 
     canvas.renderAll();
-
-
+    
     if(isDebugged == true) {
         dbDrawingObjInfo.innerHTML = JSON.stringify(drawingObject);
 
