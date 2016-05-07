@@ -10,6 +10,7 @@
 /**
  * Created by lua on 4/04/2016.
  */
+var host = "192.168.2.86:8000";
 var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.6.86:8888");
 
 var currentUsername;// The username of the user
@@ -66,6 +67,8 @@ function page2_displayErrorMsg(msg) {
 
 /** Page 3 **/
 var page3 = document.querySelector("#page3");
+var page3_header = document.querySelector("#page3_header");
+
 var canvas_ele = document.querySelector("#canvas");
 var canvas_wrapper = document.querySelector("#canvas_wrapper");
 //Chat session
@@ -125,6 +128,17 @@ function addMessageToChatScreen(msg) {
 function setupPage3ForOwner() {
     //setup chat box
     chat_send_button.addEventListener("click", function() {
+        sendChatMessage();
+    });
+
+    chat_input_message.addEventListener("keypress", function(event) {
+        console.log(event.keyCode);
+        if(event.keyCode == 13) {
+            sendChatMessage();
+        }
+    });
+
+    var sendChatMessage = function () {
         var msg = chat_input_message.value.trim();
         chat_input_message.value = "";// reset the input
         if(!msg) {
@@ -135,7 +149,7 @@ function setupPage3ForOwner() {
          * Sends the chat message to all users using the board.
          */
         sendChatMessageToClients(msg);
-    });
+    }
 }
 
 /**
@@ -145,6 +159,17 @@ function setupPage3ForGuest() {
     createDrawingToolbar();
     //setup chat box
     chat_send_button.addEventListener("click", function() {
+        sendChatMessage();
+    });
+
+    chat_input_message.addEventListener("keypress", function(event) {
+        console.log(event.keyCode);
+        if(event.keyCode == 13) {
+            sendChatMessage();
+        }
+    });
+
+    var sendChatMessage = function () {
         var msg = chat_input_message.value.trim();
         chat_input_message.value = "";// reset the input
 
@@ -153,7 +178,7 @@ function setupPage3ForGuest() {
         }
 
         sendChatMessageToServer(msg, true);
-    });
+    };
 }
 
 function initToolbar() {
@@ -371,6 +396,8 @@ function goToPage3() {
     page1.style.display = "none";
     page2.style.display = "none";
     page3.style.display = "block";
+
+    page3_header.innerHTML = "Board Id: " + page2_board_id.value + " ---- Server: " +  host;
 
     initToolbar();
     initCanvas();

@@ -419,7 +419,7 @@ function renderCanvas() {
             isRenderReady = false;
 
             canvas.renderAll();
-        }, 10);
+        }, 30);
     }
 }
 
@@ -493,14 +493,12 @@ function updateCanvasSize(width, height) {
     canvas.setHeight(canvas_height);
 
     canvas_wrapper.style.width = width;
-    //
-    //var canvas_wrapper_rect = canvas_wrapper.getBoundingClientRect();
-    //if(canvas_wrapper.style.height < canvas_max_height) {
-    //    canvas_wrapper.style.height = width + 10;
-    //}
 
     page3_canvas_width.value = width;
     page3_canvas_height.value = height;
+
+    //update toolbar
+    toolbar.style.width = width;
 
     if (isBoardOwner) {
         //if the board's owner resizes the board, then notify other users to update their board size
