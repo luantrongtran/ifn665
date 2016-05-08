@@ -49,6 +49,7 @@ body {
 
 #canvas_wrapper {
     overflow: auto;
+    height: 420px;
     max-height: 500px;
 }
 

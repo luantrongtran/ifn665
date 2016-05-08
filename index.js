@@ -28,7 +28,7 @@ var board_owners = {};
 var heartBeatCheckingInterval = 5000;//5s
 
 setInterval(function(){
-    console.log("heart beat checking invoked");
+    //console.log("heart beat checking invoked");
     checkHeartBeat();
 }, heartBeatCheckingInterval);
 

@@ -10,7 +10,7 @@
 /**
  * Created by lua on 4/04/2016.
  */
-var host = "192.168.2.86:8000";
+var host = window.location.href;
 var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.6.86:8888");
 
 var currentUsername;// The username of the user

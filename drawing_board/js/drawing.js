@@ -492,7 +492,8 @@ function updateCanvasSize(width, height) {
     canvas.setWidth(canvas_width);
     canvas.setHeight(canvas_height);
 
-    canvas_wrapper.style.width = width;
+    //canvas_wrapper.style.width = width;
+    //canvas_wrapper.style.height = 500;
 
     page3_canvas_width.value = width;
     page3_canvas_height.value = height;
