@@ -12,7 +12,7 @@ var dbIsDrawing = document.querySelector("#isDrawing");
 var dbDrawingObjInfo = document.querySelector("#drawingObjInfo");
 var dbCustomInfo = document.querySelector("#customInfo");
 
-var isDebugged = false;
+var isDebugged = true;
 
 //variables used for transferring data between 2 canvases
 
@@ -451,8 +451,12 @@ function castToFabricObject(obj) {
         } else if (obj.type == TOOL.ELLIPSE) {
             returnObj = new fabric.Ellipse(obj);
         } else if (obj.type == TOOL.LINE) {
+
+            var x2 = (obj.x1 < 0) ? obj.left + obj.width : obj.left - obj.width;
+            var y2 = (obj.y1 < 0) ? obj.top + obj.height : obj.top - obj.height;
+
             returnObj = new fabric.Line([obj.left, obj.top,
-                obj.left + obj.width, obj.top + obj.height], obj);
+                x2,y2], obj);
         } else if (obj.type == TOOL.TEXT) {
             returnObj = new fabric.IText("", {
                 left: obj.left,
