@@ -91,6 +91,7 @@ var toolbar_text = document.querySelector("#toolbar_text");
 var toolbar_pencil = document.querySelector("#toolbar_pencil");
 
 var toolbar_stroke_width_selector = document.querySelector("#toolbar_stroke_width_selector");
+var stroke_width_indicator = document.querySelector("#strokeWidthIndicator");
 
 ////toolbar: Color picker
 var color_picker = document.querySelector("#color_picker");
@@ -197,9 +198,27 @@ function initToolbar() {
 }
 
 function createStrokeWidthSelector() {
+    /**
+     * invoked when user release mouse
+     */
     toolbar_stroke_width_selector.addEventListener("change", function() {
         selectedStrokeWidth = parseInt(this.value);
+
+        stroke_width_indicator.style.borderTopWidth = this.value + "px";
     });
+
+    /**
+     * invoked while the slide bar is being changed
+     */
+    toolbar_stroke_width_selector.addEventListener("input", function() {
+        selectedStrokeWidth = parseInt(this.value);
+
+        stroke_width_indicator.style.borderTopWidth = this.value + "px";
+    });
+
+    //set default value
+    stroke_width_indicator.style.borderTopWidth = selectedStrokeWidth + "px";
+    toolbar_stroke_width_selector.value = 1;
 }
 
 /**
