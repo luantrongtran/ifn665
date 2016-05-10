@@ -145,7 +145,7 @@ function initCanvas() {
 
     canvas.on("mouse:move", onMouseMoveCanvas);
 
-    updateCanvasSize(canvas_initial_width, canvas_initial_height);
+    //updateAndSyncCanvasSize(canvas_initial_width, canvas_initial_height);
 }
 
 /**
@@ -547,10 +547,22 @@ function castToFabricObject(obj) {
 }
 
 /**
- * Update the size of the canvas
+ * Update the size of the canvas, then send sync data to server if a guest, or send sync data to other peers if a board
+ * owner
  * @param width number
  * @param height number
  */
+function updateAndSyncCanvasSize(width, height) {
+    updateCanvasSize(width, height);
+
+    if (isBoardOwner) {
+        //if the board's owner resizes the board, then notify other users to update their board size
+        sendSyncDataToAllUsers(false, false, true);
+    } else {
+        sendSyncDataToServer();
+    }
+}
+
 function updateCanvasSize(width, height) {
     canvas_width = width;
     canvas_height = height;
@@ -566,11 +578,6 @@ function updateCanvasSize(width, height) {
 
     //update toolbar
     toolbar.style.width = width;
-
-    if (isBoardOwner) {
-        //if the board's owner resizes the board, then notify other users to update their board size
-        sendSyncDataToAllUsers(false, false, true);
-    }
 }
 
 /**

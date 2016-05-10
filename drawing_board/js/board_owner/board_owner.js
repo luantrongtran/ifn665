@@ -196,6 +196,12 @@ function onMessageReceivedFromAClientCallback(event) {
 
         //forwardCanvasData(canvasData, data.sender);
         forwardDataToAllUsers(data);
+    } else if (data.type == DataTransferType.SYNC) {
+        var syncData = data.content;
+
+        if (syncData.canvasSize) {
+            updateAndSyncCanvasSize(syncData.canvasSize.width, syncData.canvasSize.height);
+        }
     }
 }
 

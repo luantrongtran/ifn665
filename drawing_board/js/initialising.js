@@ -346,7 +346,7 @@ function createUpdateBoardSizeTool () {
             return;
         }
 
-        updateCanvasSize(new_width, new_height);
+        updateAndSyncCanvasSize(new_width, new_height);
     });
 }
 

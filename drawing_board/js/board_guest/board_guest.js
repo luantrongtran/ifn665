@@ -251,5 +251,10 @@ function refreshUserListFromServer(newUserList) {
  * Want to send sync data to server. Guest user can only sync screen size with the server.
  */
 function sendSyncDataToServer() {
-    
+    var syncData = {};
+    syncData.canvasSize = {
+        width: canvas_width,
+        height: canvas_height
+    };
+    sendDataToAPeer(dataChannel, wrapData(syncData, DataTransferType.SYNC));
 }
