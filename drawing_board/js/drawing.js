@@ -12,17 +12,22 @@ var dbIsDrawing = document.querySelector("#isDrawing");
 var dbDrawingObjInfo = document.querySelector("#drawingObjInfo");
 var dbCustomInfo = document.querySelector("#customInfo");
 
-var isDebugged = true;
+var isDebugged = false;
 
 //variables used for transferring data between 2 canvases
 
+/**
+ * supported tool in the application
+ * @type {{NONE: string, ELLIPSE: string, RECTANGLE: string, LINE: string, TEXT: string, PENCIL: string}}
+ */
 var TOOL = {
     //The value should be the type in fabricjs
     NONE: "none",
     ELLIPSE: "ellipse",
     RECTANGLE: "rect",
     LINE: "line",
-    TEXT: "i-text"
+    TEXT: "i-text",
+    PENCIL: "path"
 };
 
 var FONT_WEIGHT = {
@@ -74,7 +79,7 @@ var canvas_text_color = '#000000';
  * The shape that the user is selecting in the tool bar.
  * Default is no tool selected
  */
-var selectedTool = TOOL.LINE;
+var selectedTool = TOOL.PENCIL;
 
 var selectedColor = "#ff0000";
 
@@ -87,6 +92,11 @@ var selectedStrokeColor = "#000000";
  * store the object that is being drawn
  */
 var drawingObject;
+
+/**
+ * Stores the points when the selectedTool is PENCIL.
+ */
+var pencilDrawingPoints = [];
 
 /**
  * stores all the drawing objects of other peers. Drawing object are shapes being drawn by other peers.
@@ -145,6 +155,13 @@ function initCanvas() {
 function onMouseUpCanvas(o) {
     isMouseDown = false;
 
+    if(selectedTool == TOOL.PENCIL) {
+        //console.log("mouseup " + isPencilDrawing);
+        //finishPencilDrawing();
+        canvas.clearContext(canvas.contextTop);
+        finishPencilDrawing(pencilDrawingPoints,{strokeStyle: selectedColor, lineWidth: selectedStrokeWidth});
+    }
+
     if(isBoardOwner) {
         onMouseUpExtraEventForOwner();
     } else {
@@ -161,7 +178,6 @@ function onMouseUpCanvas(o) {
  * @param o
  */
 function onMouseMoveCanvas(o) {
-
     if (isMouseDown) {
         var pointer = canvas.getPointer(o.e);
 
@@ -198,6 +214,12 @@ function onMouseMoveCanvas(o) {
             });
         } else if (selectedTool == TOOL.TEXT) {
             return;
+        } else if (selectedTool == TOOL.PENCIL) {
+            canvas.clearContext(canvas.contextTop);
+            capturePencilDrawingPoint(pointer.x, pointer.y);
+            renderAllPencilDrawing();
+            //renderPencilDrawingPoints();
+            //return;
         }
 
         if(isBoardOwner) {
@@ -215,6 +237,7 @@ function onMouseMoveCanvas(o) {
         if(isMouseDown) {
             dbIsDrawing.innerHTML = "true";
         }
+
        dbCustomInfo.innerHTML = drawingObject.x1 + ", " + drawingObject.y1 + ", " + drawingObject.x2 + ", " + drawingObject.y2;
     }
 }
@@ -307,6 +330,11 @@ function onMouseDownCanvas(o) {
         unselectDrawingTool();
 
         return;
+    } else if (selectedTool == TOOL.PENCIL) {
+        preparePencilDrawing(pointer.x, pointer.y);
+        //renderPencilDrawingPoints();
+        renderAllPencilDrawing();
+        return;
     }
 
     addObjectIntoCanvas(drawingObject);
@@ -336,6 +364,8 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             updateDrawingLineOfAPeer(oldDrawingObject, newDrawingObject);
         } else if (newDrawingObject.type == TOOL.TEXT) {
             updateDrawingTextOfAPeer(oldDrawingObject, newDrawingObject);
+        } else if (newDrawingObject.type == TOOL.PENCIL) {
+            updatePencilDrawingOfAPeer(peerUsername, newDrawingObject);
         }
 
         //canvas.renderAll();
@@ -343,11 +373,15 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
 
-        //add the drawing object into arrDrawingObject
-        arrDrawingObject[peerUsername] = castToFabricObject(newDrawingObject);
+        if(newDrawingObject.type != TOOL.PENCIL) {
+            //add the drawing object into arrDrawingObject
+            arrDrawingObject[peerUsername] = castToFabricObject(newDrawingObject);
 
-        //add the drawing object into the canvas
-        canvas.add(arrDrawingObject[peerUsername]);
+            //add the drawing object into the canvas
+            canvas.add(arrDrawingObject[peerUsername]);
+        } else {
+            arrDrawingObject[peerUsername] = [];
+        }
     }
 }
 
@@ -402,6 +436,18 @@ function updateDrawingTextOfAPeer(oldTextObj, newTextObj) {
     oldTextObj.setText(newTextObj.text);
 }
 
+/**
+ * This function is used to update the pencil drawing of peers.
+ * @param peerUsername
+ * @param newPencilDrawing
+ */
+function updatePencilDrawingOfAPeer(peerUsername, newPencilDrawing) {
+    canvas.clearContext(canvas.contextTop);
+    arrDrawingObject[peerUsername] = newPencilDrawing;
+
+    //renderArrayPoint(newPencilDrawing.pointArray, newPencilDrawing.options);
+    renderAllPencilDrawing();
+}
 /**
  * This variable is used to avoid calling the canvas.renderAll() continuously
  * @type {boolean}
@@ -468,7 +514,23 @@ function castToFabricObject(obj) {
                 textDecoration: obj.textDecoration,
                 fontWeight: obj.fontWeight
             });
-        } else {
+        } else if (obj.type == TOOL.PENCIL) {
+
+            var path = obj.path;
+            var SVGString = "";
+            for(var i = 0; i < path.length; i++) {
+                SVGString += path[i].join(" ") + " ";
+            }
+            SVGString.trim();
+
+            console.log("cast to fabric path: ", SVGString);
+
+            returnObj = new fabric.Path(SVGString, {
+                strokeWidth: obj.strokeWidth,
+                stroke: obj.stroke,
+                fill: null
+            });
+        }else {
             return null;
         }
 
@@ -521,4 +583,142 @@ function updateSelectedColor(newColor) {
 
     //For the current implementation text color has the same value with the drawing color
     canvas_text_color = newColor;
+}
+
+/**
+ * rendering the current user' pencil drawing
+ * @param pointsArray
+ */
+function renderPencilDrawingPoints() {
+    var options = {
+        strokeStyle: selectedColor,
+        lineWidth: selectedStrokeWidth
+    };
+
+    renderArrayPoint(pencilDrawingPoints, options);
+}
+
+/**
+ * render all the points in the given array on canvas.contextTop
+ * @param pointsArray the array of points
+ * @param options the options is an object {} may contain lineWidth, StrokeStyle (color)
+ */
+function renderArrayPoint(pointsArray, options) {
+    //console.log("rendering pencil: ", pointsArray);
+    //console.log(options);
+    if(pointsArray.length < 2) {
+        return;
+    }
+    var context = canvas.contextTop;
+    context.beginPath();
+
+    var p1 = pointsArray[0];
+    var p2 = pointsArray[1];
+
+    /**
+     * if the user only clicked on the canvas, the canvas should draw a point instead of nothing
+     */
+    if(pointsArray.length == 2 && p1.x == p2.x && p1.y == p2.y) {
+        p1.x -= 0.5;
+        p2.x += 0.5;
+    }
+
+    context.moveTo(p1.x, p1.y);
+
+    console.log("p2: " + p2);
+    for(var i = 0; i < pointsArray.length; i++) {
+        //context.moveTo(p1.x, p1.y);
+        context.lineTo(p2.x, p2.y);
+        //p1 = pointsArray[i];
+        p2 = pointsArray[i+1];
+    }
+
+
+    context.strokeStyle = options.strokeStyle;
+    context.lineWidth = options.lineWidth;
+    context.stroke();
+}
+
+/**
+ * @param x the first point's x
+ * @param y the first point's y
+ */
+function preparePencilDrawing(x, y) {
+    resetArray(pencilDrawingPoints);
+    capturePencilDrawingPoint(x, y);
+}
+
+/**
+ * This converts the pointArray into fabric.Path and adds it into the canvas.
+ * @param pointArray
+ * @param options contains {strokeStyle: //Line color, lineWidth: //line width}/
+ */
+function finishPencilDrawing(pointArray, options) {
+    console.log("finish pencil drawing : ", pointArray, options);
+    canvas.contextTop.closePath();
+    var pathLines = convertPointArrayToPath(pointArray);
+    console.log(pathLines);
+    var path = new fabric.Path(pathLines, {
+        stroke: options.strokeStyle,
+        strokeWidth: options.lineWidth,
+        fill: null,
+        selectable: false
+    });
+
+    console.log(path);
+    canvas.add(path);
+    renderCanvas();
+}
+
+/**
+ * if selectedTool = TOOL.PENCIL, the mousedownevent and mousemoveevent will capture the pointer of mouse click event
+ * and add it into pencilDrawingPoints
+ */
+function capturePencilDrawingPoint(x, y) {
+    pencilDrawingPoints.push(new fabric.Point(x, y));
+}
+
+/**
+ * empty an array
+ */
+function resetArray(array) {
+    array.length = 0;
+}
+
+/**
+ * Convert an array of points into a string of SVG format
+ */
+function convertPointArrayToPath(pointArray) {
+
+    if(pointArray.length == 0) {
+        return "";
+    }
+
+    var path = [];
+
+    path.push("M");
+    path.push(pointArray[0].x);
+    path.push(pointArray[0].y);
+    for(var i = 1; i < pointArray.length; i++) {
+        path.push("L", pointArray[i].x, pointArray[i].y);
+    }
+
+    return path.join(" ");
+}
+
+/**
+ * This renders all drawing objects which are TOOL.PENCIL in arrDrawingObject and pencilDrawingPoints
+ */
+function renderAllPencilDrawing() {
+    console.log("Render all pencil drawing: ");
+    var sum = 0;
+    for(var i in arrDrawingObject) {
+        if(arrDrawingObject[i].type == TOOL.PENCIL) {
+            renderArrayPoint(arrDrawingObject[i].pointArray, arrDrawingObject[i].options);
+            sum++;
+        }
+    }
+    console.log(sum);
+    renderPencilDrawingPoints();
+
 }

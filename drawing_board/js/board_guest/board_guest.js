@@ -151,7 +151,11 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
             updateDrawingObjectOfAPeer(data.sender, canvasObj);
 
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
+            //finish drawing command sent when the other peers finish what they were drawing
             //console.log("Finish drawing : " , data.sender);
+            if(arrDrawingObject[data.sender].type == TOOL.PENCIL) {
+                finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
+            }
             delete arrDrawingObject[data.sender];
         }
     } else if (data.type == DataTransferType.SYNC) {
@@ -222,9 +226,12 @@ function syncCanvasDataFromServer (syncData) {
         var drawnObj = syncData[i];
 
         var convertedObj = castToFabricObject(drawnObj);
-        console.log(convertedObj);
-        console.log(convertedObj.selectable);
-        canvas.add(convertedObj);
+
+        if(convertedObj) {
+            console.log(convertedObj);
+            console.log(convertedObj.selectable);
+            canvas.add(convertedObj);
+        }
     }
 }
 
@@ -238,4 +245,11 @@ function refreshUserListFromServer(newUserList) {
     for(var i = 0; i < newUserList.length; i++) {
         page3_user_list.innerHTML += "<span>" + newUserList[i] + "</span><br>";
     }
+}
+
+/**
+ * Want to send sync data to server. Guest user can only sync screen size with the server.
+ */
+function sendSyncDataToServer() {
+    
 }

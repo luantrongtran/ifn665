@@ -188,7 +188,9 @@ function onMessageReceivedFromAClientCallback(event) {
             var canvasObj = canvasData.canvasData;
             updateDrawingObjectOfAPeer(data.sender, canvasObj);
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
-            console.log("Finish drawing : " , data.sender);
+            if(arrDrawingObject[data.sender].type == TOOL.PENCIL) {
+                finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
+            }
             delete arrDrawingObject[data.sender];
         }
 

@@ -11,7 +11,7 @@
  * Created by lua on 4/04/2016.
  */
 var host = window.location.href;
-var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.6.86:8888");
+var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.3.146:8888");
 
 var currentUsername;// The username of the user
 
@@ -88,6 +88,7 @@ var toolbar_ellipse = document.querySelector("#toolbar_ellipse");
 var toolbar_rectangle = document.querySelector("#toolbar_rectangle");
 var toolbar_line = document.querySelector("#toolbar_line");
 var toolbar_text = document.querySelector("#toolbar_text");
+var toolbar_pencil = document.querySelector("#toolbar_pencil");
 
 ////toolbar: Color picker
 var color_picker = document.querySelector("#color_picker");
@@ -222,6 +223,13 @@ function createDrawingToolbar() {
         $(this).addClass("selected");
 
         selectedTool = TOOL.TEXT;
+    });
+
+    toolbar_pencil.addEventListener("click", function () {
+       unselectDrawingTool();
+        $(this).addClass("selected");
+
+        selectedTool = TOOL.PENCIL;
     });
 }
 

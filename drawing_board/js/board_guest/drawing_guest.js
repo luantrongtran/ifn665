@@ -14,10 +14,25 @@ function sendCanvasDataToServer(data) {
  * @param drawingObject
  */
 function sendDrawingObjectToServer(drawingObject) {
-    var canvasData = {
-        command: DrawingCommands.DRAWING,
-        canvasData: drawingObject
-    };
+    var canvasData;
+    if(selectedTool != TOOL.PENCIL) {
+        canvasData = {
+            command: DrawingCommands.DRAWING,
+            canvasData: drawingObject
+        };
+    } else {
+        canvasData = {
+            command: DrawingCommands.DRAWING,
+            canvasData: {
+                type: TOOL.PENCIL,
+                pointArray: pencilDrawingPoints,
+                options: {
+                    lineWidth: selectedStrokeWidth,
+                    strokeStyle: selectedColor
+                }
+            }
+        };
+    }
     sendCanvasDataToServer(canvasData);
 }
 

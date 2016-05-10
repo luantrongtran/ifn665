@@ -50,6 +50,10 @@
     background-image: url("../images/text_tool.png");
 }
 
+#toolbar_pencil {
+    background-image: url("../images/pencil_tool.png");
+}
+
 /*Color picker*/
 #color_picker {
     /*width: 50%;*/

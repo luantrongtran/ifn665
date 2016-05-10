@@ -48,10 +48,28 @@ function finishDrawing_Owner() {
     broadcastCanvasData(canvasData);
 }
 
+/**
+ * invoked in mousemoveevent of the canvas
+ */
 function onMouseMoveExtraEventForOwner() {
-    sendDrawingObjectToOtherPeers(drawingObject);
+    if(selectedTool != TOOL.PENCIL) {
+        sendDrawingObjectToOtherPeers(drawingObject);
+    } else {
+        var data = {
+            type: TOOL.PENCIL,
+            pointArray: pencilDrawingPoints,
+            options: {
+                lineWidth: selectedStrokeWidth,
+                strokeStyle: selectedColor
+            }
+        };
+        sendDrawingObjectToOtherPeers(data);
+    }
 }
 
+/**
+ * invoked in mouseUpevent of the canvas
+ */
 function onMouseUpExtraEventForOwner() {
     if(selectedTool != TOOL.NONE) {
         finishDrawing_Owner();
