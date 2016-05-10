@@ -90,6 +90,8 @@ var toolbar_line = document.querySelector("#toolbar_line");
 var toolbar_text = document.querySelector("#toolbar_text");
 var toolbar_pencil = document.querySelector("#toolbar_pencil");
 
+var toolbar_stroke_width_selector = document.querySelector("#toolbar_stroke_width_selector");
+
 ////toolbar: Color picker
 var color_picker = document.querySelector("#color_picker");
 var color_palette = document.querySelector("#color_palette");
@@ -187,11 +189,19 @@ function setupPage3ForGuest() {
 }
 
 function initToolbar() {
+    createStrokeWidthSelector();
     createColorPicker();
     createDrawingToolbar();
     createFontSettingsTool();
     createUpdateBoardSizeTool();
 }
+
+function createStrokeWidthSelector() {
+    toolbar_stroke_width_selector.addEventListener("change", function() {
+        selectedStrokeWidth = parseInt(this.value);
+    });
+}
+
 /**
  * setup drawing tool including tools drawing rectangles, circles, lines and text
  */

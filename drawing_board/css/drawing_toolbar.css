@@ -10,7 +10,18 @@
 }
 
 #drawing_shape {
+    width: 200px;
+}
+
+#toolbar_stroke_width_selector{
     width: 150px;
+}
+
+#strokeWidthIndicator {
+    width: 150px;/*should be the same with #toolbar_stroke_width_selector*/
+    margin-top: 3px;
+    border-top: 5px solid black;
+    margin-left: 4px;
 }
 
 .drawing_tool_btn {
