@@ -95,9 +95,12 @@ var drawingObject;
 
 /**
  * stores the position which should be used to render the name of the current user drawing the object on canvas.
- * This includes 2 attributes x and y. For example, {x: 0, y: 0}
+ * This includes 3 including 2 attributes x and y indicating the position where the
+ * name should be rendered, and color attribute which is the text color. The color should be the same with
+ * selectedTextColor which is the chat message color
+ * For example, {x: 0, y: 0, color: the_text_color}
  */
-var nameRenderingPosition = {};
+var nameRenderingOptions = {};
 
 /**
  * Stores the points when the selectedTool is PENCIL.
@@ -125,7 +128,7 @@ var arrNameRenderingPosition = {};
  * indicating how big the username will be display next to the drawing object
  * @type {number}
  */
-var drawingNameFontSize = 12;
+var drawingNameFontSize = 18;
 
 
 /**
@@ -206,16 +209,16 @@ function onMouseMoveCanvas(o) {
         } else if(selectedTool == TOOL.RECTANGLE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
-                nameRenderingPosition.x = pointer.x - drawingNameFontSize;
+                nameRenderingOptions.x = pointer.x - drawingNameFontSize;
             } else {
-                nameRenderingPosition.x = drawingObject.left + drawingObject.width;
+                nameRenderingOptions.x = drawingObject.left + drawingObject.width;
             }
 
             if (mouseDownPosition.y > pointer.y) {
                 drawingObject.set({top: pointer.y});
-                nameRenderingPosition.y = pointer.y - drawingNameFontSize;
+                nameRenderingOptions.y = pointer.y - drawingNameFontSize;
             } else {
-                nameRenderingPosition.y = drawingObject.top + drawingObject.height;
+                nameRenderingOptions.y = drawingObject.top + drawingObject.height;
             }
 
             drawingObject.set({
@@ -226,16 +229,16 @@ function onMouseMoveCanvas(o) {
         } else if (selectedTool == TOOL.ELLIPSE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
-                nameRenderingPosition.x = pointer.x - drawingNameFontSize;
+                nameRenderingOptions.x = pointer.x - drawingNameFontSize;
             } else {
-                nameRenderingPosition.x = drawingObject.left + drawingObject.width;
+                nameRenderingOptions.x = drawingObject.left + drawingObject.width;
             }
 
             if (mouseDownPosition.y > pointer.y) {
                 drawingObject.set({top: pointer.y});
-                nameRenderingPosition.y = pointer.y - drawingNameFontSize;
+                nameRenderingOptions.y = pointer.y - drawingNameFontSize;
             } else {
-                nameRenderingPosition.y = drawingObject.top + drawingObject.height;
+                nameRenderingOptions.y = drawingObject.top + drawingObject.height;
             }
 
             drawingObject.set({
@@ -288,6 +291,9 @@ function onMouseDownCanvas(o) {
     var pointer = canvas.getPointer(o.e);
     mouseDownPosition.x = pointer.x;
     mouseDownPosition.y = pointer.y;
+
+    //Add the position where the drawer's name should be rendered
+    nameRenderingOptions = {x: mouseDownPosition.x, y: mouseDownPosition.y, color: selectedTextColor};
 
     if (selectedTool == TOOL.NONE) {
         return;
@@ -373,8 +379,6 @@ function onMouseDownCanvas(o) {
         return;
     }
 
-    //Add the position where the drawer's name should be rendered
-    nameRenderingPosition = {x: mouseDownPosition.x, y: mouseDownPosition.y};
     addObjectIntoCanvas(drawingObject);
 
     if (isDebugged) {
@@ -386,7 +390,7 @@ function onMouseDownCanvas(o) {
  * Update the object which is being drawn by another peer
  * @param peerUsername the username of the peer who is drawing the object
  * @param newDrawingObject the data of the drawing object
- * @param nameRenderingPosition indicates where the name should be rendered next to the drawing object
+ * @param newNameRenderingPosition indicates where the name should be rendered next to the drawing object
  */
 function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject, newNameRenderingPosition) {
     if(arrDrawingObject[peerUsername]) {
@@ -428,7 +432,8 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject, newNameRende
             originY: "top",
             left: newDrawingObject.left,
             top: newDrawingObject.top,
-            fontSize: drawingNameFontSize
+            fontSize: drawingNameFontSize,
+            fill: newNameRenderingPosition.color
         });
 
         canvas.add(arrNameRenderingPosition[peerUsername]);

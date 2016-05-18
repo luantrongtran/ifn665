@@ -20,7 +20,7 @@ function sendDrawingObjectToServer(drawingObject) {
         canvasData = {
             command: DrawingCommands.DRAWING,
             canvasData: drawingObject, //a fabricjs object
-            nameRenderingPosition: nameRenderingPosition // where the name should be rendered
+            nameRenderingPosition: nameRenderingOptions // where the name should be rendered
         };
     } else {
         //if the drawing object is being drawn by TOOL.PENCIL
@@ -33,7 +33,8 @@ function sendDrawingObjectToServer(drawingObject) {
                     lineWidth: selectedStrokeWidth,
                     strokeStyle: selectedColor
                 }
-            }
+            },
+            nameRenderingPosition: nameRenderingOptions
         };
     }
     sendCanvasDataToServer(canvasData);
