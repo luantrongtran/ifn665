@@ -226,9 +226,16 @@ function onMouseMoveCanvas(o) {
         } else if (selectedTool == TOOL.ELLIPSE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
+                nameRenderingPosition.x = pointer.x - drawingNameFontSize;
+            } else {
+                nameRenderingPosition.x = drawingObject.left + drawingObject.width;
             }
+
             if (mouseDownPosition.y > pointer.y) {
                 drawingObject.set({top: pointer.y});
+                nameRenderingPosition.y = pointer.y - drawingNameFontSize;
+            } else {
+                nameRenderingPosition.y = drawingObject.top + drawingObject.height;
             }
 
             drawingObject.set({
@@ -295,9 +302,6 @@ function onMouseDownCanvas(o) {
             strokeWidth: selectedStrokeWidth,
             stroke: selectedStrokeColor
         });
-
-        nameRenderingPosition = {x: mouseDownPosition.x, y: mouseDownPosition.y};
-
     } else if (selectedTool == TOOL.ELLIPSE) {
         drawingObject = new fabric.Ellipse({
             fill: selectedColor,
@@ -368,6 +372,8 @@ function onMouseDownCanvas(o) {
         return;
     }
 
+    //Add the position where the drawer's name should be rendered
+    nameRenderingPosition = {x: mouseDownPosition.x, y: mouseDownPosition.y};
     addObjectIntoCanvas(drawingObject);
 
     if (isDebugged) {
