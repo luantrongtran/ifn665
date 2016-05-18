@@ -475,6 +475,8 @@ function renderCanvas() {
 function addObjectIntoCanvas(fabricObject) {
     fabricObject.id = objectIdGenerator();
     canvas.add(fabricObject);
+
+    console.log("add new object into canvas: ", fabricObject);
 }
 
 /**
@@ -487,7 +489,8 @@ function objectIdGenerator() {
 }
 
 /**
- * Convert an object into Fabricjs object
+ * Convert a json object into Fabricjs object.
+ * This simply copies essential attributes of the json object into the new fabricjs object
  */
 function castToFabricObject(obj) {
     if(obj) {
@@ -522,8 +525,6 @@ function castToFabricObject(obj) {
                 SVGString += path[i].join(" ") + " ";
             }
             SVGString.trim();
-
-            console.log("cast to fabric path: ", SVGString);
 
             returnObj = new fabric.Path(SVGString, {
                 strokeWidth: obj.strokeWidth,
@@ -569,9 +570,6 @@ function updateCanvasSize(width, height) {
 
     canvas.setWidth(canvas_width);
     canvas.setHeight(canvas_height);
-
-    //canvas_wrapper.style.width = width;
-    //canvas_wrapper.style.height = 500;
 
     page3_canvas_width.value = width;
     page3_canvas_height.value = height;
@@ -661,7 +659,7 @@ function preparePencilDrawing(x, y) {
  * @param options contains {strokeStyle: //Line color, lineWidth: //line width}/
  */
 function finishPencilDrawing(pointArray, options) {
-    console.log("finish pencil drawing : ", pointArray, options);
+    //console.log("finish pencil drawing : ", pointArray, options);
     canvas.contextTop.closePath();
     var pathLines = convertPointArrayToPath(pointArray);
     console.log(pathLines);
@@ -693,7 +691,7 @@ function resetArray(array) {
 }
 
 /**
- * Convert an array of points into a string of SVG format
+ * Converts an array of points into a string of SVG format
  */
 function convertPointArrayToPath(pointArray) {
 
@@ -714,10 +712,10 @@ function convertPointArrayToPath(pointArray) {
 }
 
 /**
- * This renders all drawing objects which are TOOL.PENCIL in arrDrawingObject and pencilDrawingPoints
+ * This renders all drawing objects which are drawn using TOOL.PENCIL in arrDrawingObject and pencilDrawingPoints
  */
 function renderAllPencilDrawing() {
-    console.log("Render all pencil drawing: ");
+    //console.log("Render all pencil drawing: ");
     var sum = 0;
     for(var i in arrDrawingObject) {
         if(arrDrawingObject[i].type == TOOL.PENCIL) {

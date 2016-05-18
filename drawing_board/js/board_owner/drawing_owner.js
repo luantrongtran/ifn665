@@ -53,6 +53,7 @@ function finishDrawing_Owner() {
  */
 function onMouseMoveExtraEventForOwner() {
     if(selectedTool != TOOL.PENCIL) {
+        //If the object is not being drawn using TOOL.PENCIL
         sendDrawingObjectToOtherPeers(drawingObject);
     } else {
         var data = {

@@ -228,8 +228,6 @@ function syncCanvasDataFromServer (syncData) {
         var convertedObj = castToFabricObject(drawnObj);
 
         if(convertedObj) {
-            console.log(convertedObj);
-            console.log(convertedObj.selectable);
             canvas.add(convertedObj);
         }
     }
