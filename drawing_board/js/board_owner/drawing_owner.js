@@ -9,7 +9,8 @@
 function sendDrawingObjectToOtherPeers (drawingObj) {
     var canvasData = {
         command: DrawingCommands.DRAWING,
-        canvasData: drawingObj
+        canvasData: drawingObj,
+        nameRenderingPosition: nameRenderingPosition
     };
 
     broadcastCanvasData(canvasData);

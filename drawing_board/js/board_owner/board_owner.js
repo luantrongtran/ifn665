@@ -186,12 +186,15 @@ function onMessageReceivedFromAClientCallback(event) {
         if (canvasData.command == DrawingCommands.DRAWING) {
             //if the command is drawing
             var canvasObj = canvasData.canvasData;
-            updateDrawingObjectOfAPeer(data.sender, canvasObj);
+            updateDrawingObjectOfAPeer(data.sender, canvasObj, canvasData.nameRenderingPosition);
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
             if(arrDrawingObject[data.sender].type == TOOL.PENCIL) {
                 finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
             }
             delete arrDrawingObject[data.sender];
+
+            arrNameRenderingPosition[data.sender].remove();
+            delete arrNameRenderingPosition[data.sender];
         }
 
         //forwardCanvasData(canvasData, data.sender);

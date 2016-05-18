@@ -89,9 +89,15 @@ var selectedStrokeWidth = 1;
 var selectedStrokeColor = "#000000";
 
 /**
- * store the object that is being drawn
+ * the object that is being drawn by the current user
  */
 var drawingObject;
+var drawingName;
+/**
+ * stores the position which should be used to render the name of the current user drawing the object on canvas.
+ * This includes 2 attributes x and y. For example, {x: 0, y: 0}
+ */
+var nameRenderingPosition = {};
 
 /**
  * Stores the points when the selectedTool is PENCIL.
@@ -105,6 +111,22 @@ var pencilDrawingPoints = [];
  * @type {{}}
  */
 var arrDrawingObject = {};
+
+/**
+ * Stores instances of fabric.Text which are used to draw the name of the person who is drawing an object. The name
+ * of the person will be drawn next to his/her drawing object. This is a key, value pair array.
+ * For example, arrNameRenderingPosition['username'] is the name render position object of the user whose username is
+ * 'username'
+ * @type {{}}
+ */
+var arrNameRenderingPosition = {};
+
+/**
+ * indicating how big the username will be display next to the drawing object
+ * @type {number}
+ */
+var drawingNameFontSize = 12;
+
 
 /**
  * checking if mouse button is being pressed
@@ -156,8 +178,6 @@ function onMouseUpCanvas(o) {
     isMouseDown = false;
 
     if(selectedTool == TOOL.PENCIL) {
-        //console.log("mouseup " + isPencilDrawing);
-        //finishPencilDrawing();
         canvas.clearContext(canvas.contextTop);
         finishPencilDrawing(pencilDrawingPoints,{strokeStyle: selectedColor, lineWidth: selectedStrokeWidth});
     }
@@ -186,15 +206,23 @@ function onMouseMoveCanvas(o) {
         } else if(selectedTool == TOOL.RECTANGLE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
+                nameRenderingPosition.x = pointer.x - drawingNameFontSize;
+            } else {
+                nameRenderingPosition.x = drawingObject.left + drawingObject.width;
             }
+
             if (mouseDownPosition.y > pointer.y) {
                 drawingObject.set({top: pointer.y});
+                nameRenderingPosition.y = pointer.y - drawingNameFontSize;
+            } else {
+                nameRenderingPosition.y = drawingObject.top + drawingObject.height;
             }
 
             drawingObject.set({
                 width: Math.abs(mouseDownPosition.x - pointer.x),
                 height: Math.abs(mouseDownPosition.y - pointer.y)
             });
+
         } else if (selectedTool == TOOL.ELLIPSE) {
             if (mouseDownPosition.x > pointer.x) {
                 drawingObject.set({left: pointer.x});
@@ -267,6 +295,9 @@ function onMouseDownCanvas(o) {
             strokeWidth: selectedStrokeWidth,
             stroke: selectedStrokeColor
         });
+
+        nameRenderingPosition = {x: mouseDownPosition.x, y: mouseDownPosition.y};
+
     } else if (selectedTool == TOOL.ELLIPSE) {
         drawingObject = new fabric.Ellipse({
             fill: selectedColor,
@@ -348,8 +379,9 @@ function onMouseDownCanvas(o) {
  * Update the object which is being drawn by another peer
  * @param peerUsername the username of the peer who is drawing the object
  * @param newDrawingObject the data of the drawing object
+ * @param nameRenderingPosition indicates where the name should be rendered next to the drawing object
  */
-function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
+function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject, newNameRenderingPosition) {
     if(arrDrawingObject[peerUsername]) {
         //if the drawing object of the sender has been added into arrDrawingObject
 
@@ -368,7 +400,7 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
             updatePencilDrawingOfAPeer(peerUsername, newDrawingObject);
         }
 
-        //canvas.renderAll();
+        updateNameRenderingPositionOfAPeer(peerUsername, newNameRenderingPosition);
         renderCanvas();
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
@@ -379,8 +411,37 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject) {
 
             //add the drawing object into the canvas
             canvas.add(arrDrawingObject[peerUsername]);
+
+            //add name of the drawer next to the drawing object
+            if(newNameRenderingPosition) {
+                if (newNameRenderingPosition.x && newNameRenderingPosition.y) {
+                    arrNameRenderingPosition[peerUsername] = new fabric.Text(peerUsername, {
+                        originX: "left",
+                        originY: "top",
+                        left: newNameRenderingPosition.x,
+                        top: newNameRenderingPosition.y,
+                        fontSize: drawingNameFontSize
+                    });
+
+                    canvas.add(arrNameRenderingPosition[peerUsername]);
+                }
+            }
         } else {
             arrDrawingObject[peerUsername] = [];
+        }
+    }
+}
+
+/**
+ * This updates the position where the name of a peer who is drawing an object on canvas
+ */
+function updateNameRenderingPositionOfAPeer(peerUsername, newNameRenderPosition) {
+    if (newNameRenderPosition) {
+        if (newNameRenderPosition.x && newNameRenderPosition.y) {
+            arrNameRenderingPosition[peerUsername].set({
+                left: newNameRenderPosition.x,
+                top: newNameRenderPosition.y
+            });
         }
     }
 }
@@ -419,7 +480,6 @@ function updateDrawingEllipseOfAPeer(oldEllipseObj, newEllipseObj) {
  * @param newLineObj
  */
 function updateDrawingLineOfAPeer(oldLineObj, newLineObj) {
-    console.log("update drawing line");
     oldLineObj.set({
         x2: (newLineObj.x1 < 0) ? newLineObj.left + newLineObj.width : newLineObj.left ,
         y2: (newLineObj.y1 < 0) ? newLineObj.top + newLineObj.height : newLineObj.top
@@ -432,7 +492,6 @@ function updateDrawingLineOfAPeer(oldLineObj, newLineObj) {
  * @param newTextObj
  */
 function updateDrawingTextOfAPeer(oldTextObj, newTextObj) {
-    console.log("update drawing text");
     oldTextObj.setText(newTextObj.text);
 }
 
@@ -475,8 +534,6 @@ function renderCanvas() {
 function addObjectIntoCanvas(fabricObject) {
     fabricObject.id = objectIdGenerator();
     canvas.add(fabricObject);
-
-    console.log("add new object into canvas: ", fabricObject);
 }
 
 /**
@@ -609,8 +666,6 @@ function renderPencilDrawingPoints() {
  * @param options the options is an object {} may contain lineWidth, StrokeStyle (color)
  */
 function renderArrayPoint(pointsArray, options) {
-    //console.log("rendering pencil: ", pointsArray);
-    //console.log(options);
     if(pointsArray.length < 2) {
         return;
     }
@@ -630,7 +685,6 @@ function renderArrayPoint(pointsArray, options) {
 
     context.moveTo(p1.x, p1.y);
 
-    console.log("p2: " + p2);
     for(var i = 0; i < pointsArray.length; i++) {
         //context.moveTo(p1.x, p1.y);
         context.lineTo(p2.x, p2.y);
@@ -659,10 +713,8 @@ function preparePencilDrawing(x, y) {
  * @param options contains {strokeStyle: //Line color, lineWidth: //line width}/
  */
 function finishPencilDrawing(pointArray, options) {
-    //console.log("finish pencil drawing : ", pointArray, options);
     canvas.contextTop.closePath();
     var pathLines = convertPointArrayToPath(pointArray);
-    console.log(pathLines);
     var path = new fabric.Path(pathLines, {
         stroke: options.strokeStyle,
         strokeWidth: options.lineWidth,
@@ -670,7 +722,6 @@ function finishPencilDrawing(pointArray, options) {
         selectable: false
     });
 
-    console.log(path);
     canvas.add(path);
     renderCanvas();
 }
@@ -715,7 +766,6 @@ function convertPointArrayToPath(pointArray) {
  * This renders all drawing objects which are drawn using TOOL.PENCIL in arrDrawingObject and pencilDrawingPoints
  */
 function renderAllPencilDrawing() {
-    //console.log("Render all pencil drawing: ");
     var sum = 0;
     for(var i in arrDrawingObject) {
         if(arrDrawingObject[i].type == TOOL.PENCIL) {
@@ -723,7 +773,6 @@ function renderAllPencilDrawing() {
             sum++;
         }
     }
-    console.log(sum);
     renderPencilDrawingPoints();
 
 }

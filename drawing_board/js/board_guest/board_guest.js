@@ -9,7 +9,7 @@ var peerConnection, dataChannel;
  * Contains users connecting to the using board. This doesn't include the board's owner
  * @type {Array}
  */
-var connectingUsers = [];
+//var connectingUsers = [];
 
 /**
  * Sends the request to join a created board
@@ -148,7 +148,7 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
         if (canvasData.command == DrawingCommands.DRAWING) {
             //if the command is drawing
             var canvasObj = canvasData.canvasData;
-            updateDrawingObjectOfAPeer(data.sender, canvasObj);
+            updateDrawingObjectOfAPeer(data.sender, canvasObj, canvasData.nameRenderingPosition);
 
         } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
             //finish drawing command sent when the other peers finish what they were drawing
@@ -157,6 +157,9 @@ function onMessageReceivedFromBoardOwnerCallBack(event) {
                 finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
             }
             delete arrDrawingObject[data.sender];
+
+            arrNameRenderingPosition[data.sender].remove();
+            delete arrNameRenderingPosition[data.sender];
         }
     } else if (data.type == DataTransferType.SYNC) {
         var syncData = data.content;

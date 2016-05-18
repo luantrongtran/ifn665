@@ -18,7 +18,8 @@ function sendDrawingObjectToServer(drawingObject) {
     if(selectedTool != TOOL.PENCIL) {
         canvasData = {
             command: DrawingCommands.DRAWING,
-            canvasData: drawingObject
+            canvasData: drawingObject, //a fabricjs object
+            nameRenderingPosition: nameRenderingPosition // where the name should be rendered
         };
     } else {
         canvasData = {
