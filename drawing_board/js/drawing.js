@@ -92,7 +92,7 @@ var selectedStrokeColor = "#000000";
  * the object that is being drawn by the current user
  */
 var drawingObject;
-var drawingName;
+
 /**
  * stores the position which should be used to render the name of the current user drawing the object on canvas.
  * This includes 2 attributes x and y. For example, {x: 0, y: 0}
@@ -247,6 +247,7 @@ function onMouseMoveCanvas(o) {
                 x2: pointer.x,
                 y2: pointer.y
             });
+
         } else if (selectedTool == TOOL.TEXT) {
             return;
         } else if (selectedTool == TOOL.PENCIL) {
@@ -406,7 +407,7 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject, newNameRende
             updatePencilDrawingOfAPeer(peerUsername, newDrawingObject);
         }
 
-        updateNameRenderingPositionOfAPeer(peerUsername, newNameRenderingPosition);
+        updateNameRenderingPositionOfAPeer(peerUsername, newDrawingObject, newNameRenderingPosition);
         renderCanvas();
     } else {
         // if the drawing object of the sender is not added into the arrDrawingObject
@@ -417,38 +418,52 @@ function updateDrawingObjectOfAPeer(peerUsername, newDrawingObject, newNameRende
 
             //add the drawing object into the canvas
             canvas.add(arrDrawingObject[peerUsername]);
-
-            //add name of the drawer next to the drawing object
-            if(newNameRenderingPosition) {
-                if (newNameRenderingPosition.x && newNameRenderingPosition.y) {
-                    arrNameRenderingPosition[peerUsername] = new fabric.Text(peerUsername, {
-                        originX: "left",
-                        originY: "top",
-                        left: newNameRenderingPosition.x,
-                        top: newNameRenderingPosition.y,
-                        fontSize: drawingNameFontSize
-                    });
-
-                    canvas.add(arrNameRenderingPosition[peerUsername]);
-                }
-            }
         } else {
             arrDrawingObject[peerUsername] = [];
         }
+
+        //add name of the drawer next to the drawing object
+        arrNameRenderingPosition[peerUsername] = new fabric.Text(peerUsername, {
+            originX: "left",
+            originY: "top",
+            left: newDrawingObject.left,
+            top: newDrawingObject.top,
+            fontSize: drawingNameFontSize
+        });
+
+        canvas.add(arrNameRenderingPosition[peerUsername]);
     }
 }
 
 /**
  * This updates the position where the name of a peer who is drawing an object on canvas
  */
-function updateNameRenderingPositionOfAPeer(peerUsername, newNameRenderPosition) {
-    if (newNameRenderPosition) {
-        if (newNameRenderPosition.x && newNameRenderPosition.y) {
-            arrNameRenderingPosition[peerUsername].set({
-                left: newNameRenderPosition.x,
-                top: newNameRenderPosition.y
-            });
+function updateNameRenderingPositionOfAPeer(peerUsername, newDrawingObject, newNameRenderPosition) {
+    if (newDrawingObject.type == TOOL.ELLIPSE || newDrawingObject.type == TOOL.RECTANGLE) {
+        if (newNameRenderPosition) {
+            if (newNameRenderPosition.x && newNameRenderPosition.y) {
+                arrNameRenderingPosition[peerUsername].set({
+                    left: newNameRenderPosition.x,
+                    top: newNameRenderPosition.y
+                });
+            }
         }
+    } else if (newDrawingObject.type == TOOL.LINE) {
+        arrNameRenderingPosition[peerUsername].set({
+            left: (newDrawingObject.x1 < 0) ? newDrawingObject.left + newDrawingObject.width : newDrawingObject.left ,
+            top: (newDrawingObject.y1 < 0) ? newDrawingObject.top + newDrawingObject.height : newDrawingObject.top - drawingNameFontSize
+        });
+    } else if (newDrawingObject.type == TOOL.TEXT) {
+        arrNameRenderingPosition[peerUsername].set({
+            left: newDrawingObject.left + newDrawingObject.width,
+            top: newDrawingObject.top - drawingNameFontSize
+        });
+    } else if (newDrawingObject.type == TOOL.PENCIL) {
+        var lastPoint = newDrawingObject.pointArray[newDrawingObject.pointArray.length-1];
+        arrNameRenderingPosition[peerUsername].set({
+            left: lastPoint.x + drawingNameFontSize,
+            top: lastPoint.y - drawingNameFontSize
+        });
     }
 }
 
@@ -518,6 +533,7 @@ function updatePencilDrawingOfAPeer(peerUsername, newPencilDrawing) {
  * @type {boolean}
  */
 var isRenderReady = false;
+
 /**
  * This functions is used to avoid calling render immediately after a drawing command which may make the canvas
  * cannot render 2 objects which are being drawn at the same time by 2 users.
@@ -780,5 +796,4 @@ function renderAllPencilDrawing() {
         }
     }
     renderPencilDrawingPoints();
-
 }
