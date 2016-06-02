@@ -2,7 +2,7 @@
  * Created by lua on 3/04/2016.
  */
 var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({port: 8080});
+var wss = new WebSocketServer({port: 8888});
 
 /**
  * value-pair map, the key is the username, the value is the connection of corresponding user.
