@@ -14,7 +14,7 @@ server.listen(port);
 
 console.log("http server listening on %d", port);
 
-var wss = new WebSocketServer({port: 8080});
+var wss = new WebSocketServer({server: server});
 
 /**
  * value-pair map, the key is the username, the value is the connection of corresponding user.
