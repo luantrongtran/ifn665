@@ -35,10 +35,11 @@ connection.onmessage = function (message) {
 
         ///////From now on is the handler of WebRTC
         case "offer":
-            //sends offer to the board's owner.
+            //client receives offer from the board's owner.
             onOfferReceived(data);
             break;
         case "webRTCAnswer":
+            //Board's owner receives answer from a client
             onWebRTCAnswer(data);
             break;
         case "candidate":

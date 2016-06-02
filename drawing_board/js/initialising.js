@@ -11,7 +11,7 @@
  * Created by lua on 4/04/2016.
  */
 var host = window.location.href;
-var connection = new WebSocket("ws://192.168.2.6:8888");//("ws://172.19.47.177:8888");
+var connection = new WebSocket("ws://172.19.33.110:8888");//("ws://192.168.2.6:8888");//
 
 var currentUsername;// The username of the user
 
