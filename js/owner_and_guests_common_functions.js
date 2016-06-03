@@ -40,7 +40,9 @@ function onCandidate(data) {
     if(isBoardOwner) {
         var targetPeerConnection = peerConnectionList[data.sender];
         if(targetPeerConnection) {
-            targetPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            targetPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate), function(){
+                console.log("Add Ice Candidate successfully");
+            }, addIceCandidateError());
         }
     } else {
         console.log("adding candidate", data.candidate);
@@ -48,6 +50,11 @@ function onCandidate(data) {
     }
 }
 
+function addIceCandidateError() {
+    return function (err) {
+        console.log("AddIceCandidate error: ", err.toString);
+    };
+}
 
 /**
  * Send data to websocket server for setting up the peer connection
