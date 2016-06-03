@@ -6,7 +6,7 @@ var WebRTCIceUrl = "stun:stun.1.google.com:19302";
 var WebRTCPeerConfiguration = {
     "iceServers": [{ "url": WebRTCIceUrl }]
 };
-var WebRTCPeerConnectionOptions = {};//{optional: [{RtpDataChannels: false}]};
+var WebRTCPeerConnectionOptions = {optional: []};//{optional: [{RtpDataChannels: false}]};
 var WebRTCDataChannelConfiguration = {
     reliable: false
 };
