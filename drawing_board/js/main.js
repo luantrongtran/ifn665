@@ -8,7 +8,7 @@ connection.onopen = function() {
 };
 
 connection.onmessage = function (message) {
-    console.log("recieved message: ", message);
+    //console.log("recieved message: ", message);
     var data = JSON.parse(message.data);
 
     switch (data.type) {
