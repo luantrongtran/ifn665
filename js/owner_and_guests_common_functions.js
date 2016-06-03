@@ -46,7 +46,11 @@ function onCandidate(data) {
         }
     } else {
         console.log("adding candidate", data.candidate);
-        peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate), function() {
+            console.log("Add Ice Candidate successfully");
+        }, function (error) {
+            console.log("Add Ice Candidate failed: ", error.toString());
+        });
     }
 }
 

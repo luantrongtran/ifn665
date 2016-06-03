@@ -97,8 +97,9 @@ function preparePeerConnection() {
 
         // Setup ice handling
         peerConnection.onicecandidate = function (event) {
-            console.log("trading candidate");
+            console.log("OnIceCandidate:", event.candidate);
             if (event.candidate) {
+                console.log("Send candidate to server");
                 sendToWebSocketServer({
                     type: "candidate",
                     candidate: event.candidate,

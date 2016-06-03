@@ -116,7 +116,9 @@ function preparePeerConnectionForANewClient(clientUsername) {
 
         // Setup ice handling
         newPeerConnection.onicecandidate = function (event) {
+            console.log("Onicecandidate: ", event.candidate);
             if (event.candidate) {
+                console.log("Send candidate to guest");
                 sendToWebSocketServer({
                     type: "candidate",
                     candidate: event.candidate,
