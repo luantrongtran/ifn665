@@ -2,11 +2,19 @@
  * Created by lua on 3/04/2016.
  */
 var WebSocketServer = require('ws').Server;
-var wsPort = 8081;
+var http = require("http");
+var express = require("express");
+var app = express();
+var port = process.env.PORT || 8081;
 
-console.log("Signaling Server started", wsPort);
+app.use(express.static(__dirname + "/"));
 
-var wss = new WebSocketServer({port: wsPort});
+var server = http.createServer(app)
+server.listen(port);
+
+console.log("http server listening on %d", port);
+
+var wss = new WebSocketServer({server: server});
 
 /**
  * value-pair map, the key is the username, the value is the connection of corresponding user.
