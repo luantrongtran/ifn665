@@ -551,7 +551,7 @@ function renderCanvas() {
             isRenderReady = false;
 
             canvas.renderAll();
-        }, 30);
+        }, 50);
     }
 }
 
