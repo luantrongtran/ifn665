@@ -6,7 +6,7 @@ var WebRTCIceUrl = "stun:stun.1.google.com:19302";
 var WebRTCPeerConfiguration = {
     "iceServers": [{ "url": WebRTCIceUrl }]
 };
-var WebRTCPeerConnectionOptions = {optional: [{RtpDataChannels: false}]};
+var WebRTCPeerConnectionOptions = {};
 var WebRTCDataChannelConfiguration = {
     reliable: false
 };
@@ -23,6 +23,23 @@ var DrawingCommands = {
     DELETE: "delete_object",
     SYNC: "synchronising_drawing_objects" //synchronising canvas data with a new user
 };
+
+$.ajax({
+    url: "https://service.xirsys.com/ice",
+    data: {
+        ident: "lualua",
+        secret: "073b7318-2a02-11e6-9ba6-4bbf443fcaf2",
+        domain: "www.ifn665-project.com",
+        application: "default",
+        room: "drawing-board",
+        secure: 1
+    },
+    success: function (data, status) {
+        // data.d is where the iceServers object lives
+        WebRTCPeerConfiguration = data.d;
+        console.log(WebRTCPeerConfiguration);
+    }
+});
 
 /**
  * Checking if users' browser support RTCPeerConnection
