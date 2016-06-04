@@ -6,7 +6,7 @@ var WebRTCIceUrl = "stun:stun.1.google.com:19302";
 var WebRTCPeerConfiguration = {
     "iceServers": [{ "url": WebRTCIceUrl }]
 };
-var WebRTCPeerConnectionOptions = {optional: [{RtpDataChannels: true}]};
+var WebRTCPeerConnectionOptions = {optional: [{RtpDataChannels: false}]};
 var WebRTCDataChannelConfiguration = {
     reliable: false
 };
@@ -44,7 +44,7 @@ function hasUserMedia() {
 }
 
 /**
- * This is the common function used to send data between 2 peers
+ * This is the function used to send data between 2 peers
  * @param datachannel the WebRTCDataChannel object used between the 2 peers.
  * @param data the data needs to be sent. for ex: {type: '', content: ''}
  */
