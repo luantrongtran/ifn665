@@ -132,14 +132,61 @@ function onDataChannelWithBoardOwnerOpenedCallBack() {
     sendChatMessageToServer(connectedMsg, false, false);
 }
 
+///**
+// * callback method triggered when receives message from server
+// * @param event
+// */
+//function onMessageReceivedFromBoardOwnerCallBack(event) {
+//    console.log("data channel message from board's owner: ", event.data);
+//
+//    var data = JSON.parse(event.data);
+//    if (data.type == DataTransferType.CHAT_MESSAGE) {
+//        //if the data is a chat message
+//        addMessageToChatScreen(data.content);//add the msg into the chat screen
+//    } else if (data.type == DataTransferType.CANVAS_DATA) {
+//        var canvasData = data.content;
+//        if (canvasData.command == DrawingCommands.DRAWING) {
+//            //if the command is drawing
+//            var canvasObj = canvasData.canvasData;
+//            updateDrawingObjectOfAPeer(data.sender, canvasObj, canvasData.nameRenderingPosition);
+//
+//        } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
+//            //finish drawing command sent when the other peers finish what they were drawing
+//            //console.log("Finish drawing : " , data.sender);
+//            if(arrDrawingObject[data.sender].type == TOOL.PENCIL) {
+//                finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
+//            }
+//            delete arrDrawingObject[data.sender];
+//
+//            arrNameRenderingPosition[data.sender].remove();
+//            delete arrNameRenderingPosition[data.sender];
+//        }
+//    } else if (data.type == DataTransferType.SYNC) {
+//        var syncData = data.content;
+//
+//        if(syncData.canvasData) {
+//            //Handle canvas data
+//            syncCanvasDataFromServer(syncData.canvasData);
+//        }
+//
+//        if (syncData.userList) {
+//            refreshUserListFromServer(syncData.userList);
+//        }
+//
+//        if (syncData.canvasSize) {
+//            updateCanvasSize(syncData.canvasSize.width, syncData.canvasSize.height);
+//        }
+//    }
+//}
+
 /**
  * callback method triggered when receives message from server
- * @param event
+ * @param data
  */
-function onMessageReceivedFromBoardOwnerCallBack(event) {
-    console.log("data channel message from board's owner: ", event.data);
-
-    var data = JSON.parse(event.data);
+function onMessageReceivedFromBoardOwnerCallBack(data) {
+    //console.log("data channel message from board's owner: ", event.data);
+    //
+    //var data = JSON.parse(event.data);
     if (data.type == DataTransferType.CHAT_MESSAGE) {
         //if the data is a chat message
         addMessageToChatScreen(data.content);//add the msg into the chat screen
@@ -207,7 +254,8 @@ function sendChatMessageToServer(message, addToScreenChat, wrapMessageWithUserna
         addMessageToChatScreen(message);
     }
 
-    sendDataToAPeer(dataChannel, wrapData(message, DataTransferType.CHAT_MESSAGE));
+    sendDataToAPeer(boardOwnerUsername, wrapData(message, DataTransferType.CHAT_MESSAGE));
+    //sendDataToAPeer(dataChannel, wrapData(message, DataTransferType.CHAT_MESSAGE));
 }
 
 /**
@@ -257,5 +305,6 @@ function sendSyncDataToServer() {
         width: canvas_width,
         height: canvas_height
     };
-    sendDataToAPeer(dataChannel, wrapData(syncData, DataTransferType.SYNC));
+    sendDataToAPeer(boardOwnerUsername, wrapData(syncData, DataTransferType.SYNC));
+    //sendDataToAPeer(dataChannel, wrapData(syncData, DataTransferType.SYNC));
 }

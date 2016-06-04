@@ -45,6 +45,20 @@ connection.onmessage = function (message) {
         case "candidate":
             onCandidate(data);
             break;
+
+        //Peer Simulation: Owner
+        case "PeerSimulation":
+            onPeerSimulation(data);
+            break;
+
         default:
     }
 };
+
+function onPeerSimulation(data) {
+    if(isBoardOwner) {
+        onMessageReceivedFromAClientCallback(data.peerData);
+    } else {
+        onMessageReceivedFromBoardOwnerCallBack(data.peerData);
+    }
+}

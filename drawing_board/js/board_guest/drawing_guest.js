@@ -1,12 +1,20 @@
 /**
  * Created by lua on 23/04/2016.
  */
+
+///**
+// * Send the data of a canva's object to server
+// * @param data
+// */
+//function sendCanvasDataToServer(data) {
+//    sendDataToAPeer(dataChannel, wrapData(data, DataTransferType.CANVAS_DATA));
+//}
 /**
- * Send the data of a canva's object to server
+ * Send the data of a canva's object to server through web socket
  * @param data
  */
 function sendCanvasDataToServer(data) {
-    sendDataToAPeer(dataChannel, wrapData(data, DataTransferType.CANVAS_DATA));
+    sendDataToAPeer(boardOwnerUsername, wrapData(data, DataTransferType.CANVAS_DATA));
 }
 
 /**

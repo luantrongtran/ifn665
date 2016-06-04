@@ -29,7 +29,7 @@ var users = {};
 var boards = {};
 
 /**
- * value-pari map, the key is the username of board's owners, value is the board id owner by the corresponding owner
+ * value-pair map, the key is the username of board's owners, value is the board id owner by the corresponding owner
  * @type {{}}
  */
 var board_owners = {};
@@ -74,7 +74,7 @@ wss.on('connection', function (connection) {
                 onDenyRequestReceived(connection, data);
                 break;
 
-            //Handlers for setting up WebRTC
+            //setting up WebRTC
             case "offer":
                 //After accept the request to join the board, the owner sends WebRTC offer to the client
                 onOffer(connection, data);
@@ -86,10 +86,29 @@ wss.on('connection', function (connection) {
             case "candidate":
                 onCandidate(connection, data);
                 break;
+
+            //Peer simulation
+            case "PeerSimulation":
+                onPeerSimulation(connection, data);
+                break;
             default :
         }
     });
 });
+
+/**
+ * Since WebRTC doesn't work for this project. The project is using WebSocket, instead.
+ * This is for process data that was exchanged using WebRTC
+ */
+function onPeerSimulation(connection, data) {
+    var targetConnection =users[data.sendTo];
+    var wrappedData = {
+        type: data.type,
+        sender: connection.name,
+        peerData: data.peerData
+    };
+    sendTo(targetConnection, wrappedData);
+}
 
 function onCandidate(con, data) {
     var targetConnection = users[data.connected_user];

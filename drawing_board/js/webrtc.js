@@ -48,26 +48,56 @@ function hasUserMedia() {
  * @param datachannel the WebRTCDataChannel object used between the 2 peers.
  * @param data the data needs to be sent. for ex: {type: '', content: ''}
  */
-function sendDataToAPeer(datachannel, data) {
+//function sendDataToAPeer(datachannel, data) {
+//
+//    if(isBoardOwner) {
+//        var connState = peerConnectionList[datachannel.name].iceConnectionState;
+//        if(connState == "failed" || connState == "disconnected") {
+//            handleGuestConnectionDisconnectedUnexpectedly(datachannel);
+//            console.log("failed to send data to " + datachannel.name);
+//
+//            return;
+//        }
+//    } else {
+//        var connState = peerConnection.iceConnectionState;
+//        if(connState == "failed" || connState == "disconnected") {
+//            console.log("failed to send data to server");
+//            handleServerConnectionDisconnected();
+//        }
+//    }
+//    console.log("send data to " + datachannel.name + " " + data);
+//    datachannel.send(JSON.stringify(data));
+//
+//    //console.log(peerConnectionList[datachannel.name].iceConnectionState);//failed disconnected
+//    //console.log(dataChannelList[datachannel.name].readyState);
+//}
 
+//Replaced the previous sendDataToAPeer to use web socket instead of WebRTC
+function sendDataToAPeer(peerUsername, data) {
     if(isBoardOwner) {
-        var connState = peerConnectionList[datachannel.name].iceConnectionState;
-        if(connState == "failed" || connState == "disconnected") {
-            handleGuestConnectionDisconnectedUnexpectedly(datachannel);
-            console.log("failed to send data to " + datachannel.name);
-
-            return;
-        }
+        //var connState = peerConnectionList[datachannel.name].iceConnectionState;
+        //if(connState == "failed" || connState == "disconnected") {
+        //    handleGuestConnectionDisconnectedUnexpectedly(datachannel);
+        //    console.log("failed to send data to " + datachannel.name);
+        //
+        //    return;
+        //}
     } else {
-        var connState = peerConnection.iceConnectionState;
-        if(connState == "failed" || connState == "disconnected") {
-            console.log("failed to send data to server");
-            handleServerConnectionDisconnected();
-        }
+        //var connState = peerConnection.iceConnectionState;
+        //if(connState == "failed" || connState == "disconnected") {
+        //    console.log("failed to send data to server");
+        //    handleServerConnectionDisconnected();
+        //}
     }
-    console.log("send data to " + datachannel.name + " " + data);
-    datachannel.send(JSON.stringify(data));
+    console.log("send data to " + peerUsername + " " + data);
 
-    //console.log(peerConnectionList[datachannel.name].iceConnectionState);//failed disconnected
-    //console.log(dataChannelList[datachannel.name].readyState);
+
+    var wrappedData = {
+        type: 'PeerSimulation',
+        sendTo: peerUsername,
+        peerData: data
+    };
+    sendToWebSocketServer(wrappedData);
+    //datachannel.send(JSON.stringify(wrappedData));
+
 }

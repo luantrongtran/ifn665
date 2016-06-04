@@ -164,14 +164,54 @@ function preparePeerConnectionForANewClient(clientUsername) {
     return newPeerConnection;
 }
 
+///**
+// * When receives a message through peer-to-peer data channel.
+// * @param event
+// */
+//function onMessageReceivedFromAClientCallback(event) {
+//    console.log("data channel receives msg: ", event.data);
+//    var data = JSON.parse(event.data);
+//
+//    if (data.type == DataTransferType.CHAT_MESSAGE) {
+//        //if the data is a chat message
+//
+//        //add the msg into the chat screen
+//        addMessageToChatScreen(data.content);
+//
+//        //broadcast the chat message to other users
+//        //broadcastChatMessage(data.content, data.sender);
+//        forwardDataToAllUsers(data);
+//    } else if (data.type == DataTransferType.CANVAS_DATA) {
+//        var canvasData = data.content;
+//        if (canvasData.command == DrawingCommands.DRAWING) {
+//            //if the command is drawing
+//            var canvasObj = canvasData.canvasData;
+//            updateDrawingObjectOfAPeer(data.sender, canvasObj, canvasData.nameRenderingPosition);
+//        } else if (canvasData.command == DrawingCommands.FINISH_DRAWING) {
+//            if(arrDrawingObject[data.sender].type == TOOL.PENCIL) {
+//                finishPencilDrawing(arrDrawingObject[data.sender].pointArray, arrDrawingObject[data.sender].options);
+//            }
+//            delete arrDrawingObject[data.sender];
+//
+//            arrNameRenderingPosition[data.sender].remove();
+//            delete arrNameRenderingPosition[data.sender];
+//        }
+//
+//        //forwardCanvasData(canvasData, data.sender);
+//        forwardDataToAllUsers(data);
+//    } else if (data.type == DataTransferType.SYNC) {
+//        var syncData = data.content;
+//
+//        if (syncData.canvasSize) {
+//            updateAndSyncCanvasSize(syncData.canvasSize.width, syncData.canvasSize.height);
+//        }
+//    }
+//}
 /**
- * When receives a message through peer-to-peer data channel.
- * @param event
+ * When received a message type "PeerSimulation" from web socket
+ * @param data
  */
-function onMessageReceivedFromAClientCallback(event) {
-    console.log("data channel receives msg: ", event.data);
-    var data = JSON.parse(event.data);
-
+function onMessageReceivedFromAClientCallback(data) {
     if (data.type == DataTransferType.CHAT_MESSAGE) {
         //if the data is a chat message
 
@@ -274,12 +314,14 @@ function sendChatMessageToAClient(clientUsername, message, addToScreenChat) {
  * @param data
  */
 function sendDataToAClient(clientUsername, data) {
-    var targetDataChannel = dataChannelList[clientUsername];
-    if (targetDataChannel) {
-        sendDataToAPeer(targetDataChannel, data);
-    } else {
-        console.log("Cannot find data channel for username: " + clientUsername);
-    }
+    //var targetDataChannel = dataChannelList[clientUsername];
+    //if (targetDataChannel) {
+    //    sendDataToAPeer(targetDataChannel, data);
+    //} else {
+    //    console.log("Cannot find data channel for username: " + clientUsername);
+    //}
+
+    sendDataToAPeer(clientUsername, data);
 }
 
 /**
@@ -293,8 +335,9 @@ function forwardDataToAllUsers(data) {
             continue;
         }
 
-        var targetDataChannel = dataChannelList[usernameList[i]];
-        sendDataToAPeer(targetDataChannel, data);
+        //var targetDataChannel = dataChannelList[usernameList[i]];
+        //sendDataToAPeer(targetDataChannel, data);
+        sendDataToAPeer(usernameList[i], data);
     }
 }
 
