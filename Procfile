@@ -1,1 +1,1 @@
-web: node signaling_server/signaling_server.js
+web: http-server drawing_board/
