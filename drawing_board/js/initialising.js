@@ -11,7 +11,7 @@
  * Created by lua on 4/04/2016.
  */
 var host = location.origin;
-var connection = new WebSocket("wss://ifn665.herokuapp.com");
+var connection = new WebSocket("ws://localhost:8081");
 
 var currentUsername;// The username of the user
 

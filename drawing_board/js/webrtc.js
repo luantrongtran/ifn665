@@ -11,6 +11,39 @@ var WebRTCDataChannelConfiguration = {
     reliable: false
 };
 
+/**
+ * Using https://service.xirsys.com/ice to setup the peer connection of WebRTC.
+ * Particularly the ICE component. Using public STUN stun:stun.1.google.com:19302 may
+ * not work between users using different networks.
+ */
+$.ajax({
+    url: "https://service.xirsys.com/ice",
+    data: {
+        ident: "lualua",
+        secret: "073b7318-2a02-11e6-9ba6-4bbf443fcaf2",
+        domain: "www.ifn665-project.com",
+        application: "default",
+        room: "drawing-board",
+        secure: 1
+    },
+    success: function (data, status) {
+        //Successfully retrieve the ICE list from xirsys
+        // data.d is where the iceServers object lives
+        WebRTCPeerConfiguration = data.d;
+        console.log(WebRTCPeerConfiguration);
+    },
+    error: function () {
+        //Failed to retrieve the ICE list from xirsys.
+        // public STUN server stun:stun.1.google.com:19302 will be used.
+        // However, This may makes the web failed to establish WebRTCPeerConnection when the users are using
+        //different networks
+        console.warn("Failed to retrieve ICE servers from xirsys.");
+        console.warn("Please make sure you entered the credentials correctly in the request of obtaining ICE servers");
+        console.info("If you have not configured xirsys please go to https://service.xirsys.com");
+        console.info("public STUN server stun:stun.1.google.com:19302 will be used");
+    }
+});
+
 var DataTransferType = {
     CHAT_MESSAGE: "chat_message",
     CANVAS_DATA: "canvas_data",
