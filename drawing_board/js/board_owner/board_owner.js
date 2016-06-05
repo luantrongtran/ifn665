@@ -317,6 +317,8 @@ function handleGuestConnectionDisconnectedUnexpectedly(datachannel) {
     var disMsg = formatMessageColor("(" + datachannel.name + " has been disconnected)", "red");
     broadcastChatMessage(disMsg);
     addMessageToChatScreen(disMsg);
+
+    refreshConnectingUserList();
 }
 
 /**
