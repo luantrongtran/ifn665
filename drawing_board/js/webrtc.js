@@ -99,8 +99,15 @@ function sendDataToAPeer(datachannel, data) {
         }
     }
     console.log("send data to " + datachannel.name + " " + data);
-    datachannel.send(JSON.stringify(data));
-
-    //console.log(peerConnectionList[datachannel.name].iceConnectionState);//failed disconnected
-    //console.log(dataChannelList[datachannel.name].readyState);
+    try {
+        datachannel.send(JSON.stringify(data));
+    } catch(e) {
+        if(isBoardOwner) {
+            handleGuestConnectionDisconnectedUnexpectedly(datachannel);
+            console.log("failed to send data to " + datachannel.name);
+        } else {
+            console.log("failed to send data to server");
+            handleServerConnectionDisconnected();
+        }
+    }
 }
