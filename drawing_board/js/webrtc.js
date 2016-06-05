@@ -110,7 +110,4 @@ function sendDataToAPeer(datachannel, data) {
             handleServerConnectionDisconnected();
         }
     }
-
-    //console.log(peerConnectionList[datachannel.name].iceConnectionState);//failed disconnected
-    //console.log(dataChannelList[datachannel.name].readyState);
 }
